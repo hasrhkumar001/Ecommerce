@@ -18,7 +18,7 @@ export const Brand = ({brand_id}) => {
   
     const fetchBrand = async () => {
       try {
-        const response = await axios.get(`http://127.0.0.1:8000/api/brand/${brand_id}`);
+        const response = await axios.get(`http://192.168.137.160:8081/api/brand/${brand_id}`);
         setBrand(response.data);
         
         

@@ -27,7 +27,7 @@ export const ProductDetail = () => {
 
   const checkWishlistStatus = async () => {
     try {
-      const response = await axios.get(`http://127.0.0.1:8000/api/wishlists`, {
+      const response = await axios.get(`http://192.168.137.160:8081/api/wishlists`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
@@ -50,7 +50,7 @@ export const ProductDetail = () => {
       if (isWishlisted) {
         // If the product is already wishlisted, remove it
         await axios.delete(
-          `http://127.0.0.1:8000/api/wishlists/${product.id}`,
+          `http://192.168.137.160:8081/api/wishlists/${product.id}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("authToken")}`,
@@ -62,7 +62,7 @@ export const ProductDetail = () => {
       } else {
         // If the product is not wishlisted, add it
         await axios.post(
-          `http://127.0.0.1:8000/api/wishlists`,
+          `http://192.168.137.160:8081/api/wishlists`,
           {
             product_id: product.id,
           },
@@ -134,7 +134,7 @@ export const ProductDetail = () => {
     }
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/cart",
+        "http://192.168.137.160:8081/api/cart",
         {
           product_id: product.id,
           quantity: quantity,
@@ -158,7 +158,7 @@ export const ProductDetail = () => {
   const fetchProduct = async () => {
     try {
       const response = await axios.get(
-        `http://127.0.0.1:8000/api/product/${id}`
+        `http://192.168.137.160:8081/api/product/${id}`
       );
 
       setProduct(response.data);
@@ -174,7 +174,7 @@ export const ProductDetail = () => {
   const addToRecentlyViewed = async () => {
     
       const response = await axios.post(
-        `http://127.0.0.1:8000/api/recently-viewed`,{
+        `http://192.168.137.160:8081/api/recently-viewed`,{
           product_id: product.id,
          
         }, {

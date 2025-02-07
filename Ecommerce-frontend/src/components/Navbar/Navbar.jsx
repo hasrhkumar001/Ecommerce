@@ -61,7 +61,7 @@ function Navbar() {
     const fetchSearchResults = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get("http://127.0.0.1:8000/api/products/search", {
+        const response = await axios.get("http://192.168.137.160:8081/api/products/search", {
           params: { query: searchQuery },
         });
         setSearchResults(response.data);
@@ -80,7 +80,7 @@ function Navbar() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get("http://127.0.0.1:8000/api/categories");
+        const response = await axios.get("http://192.168.137.160:8081/api/categories");
         const allCategories = response.data;
 
            // Find the IDs for "Kids", "Mens", and "Womens" dynamically

@@ -47,7 +47,7 @@ const TopProducts = ({ handleOrderPopup }) => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get("http://127.0.0.1:8000/api/products/top");
+        const response = await axios.get("http://192.168.137.160:8081/api/products/top");
         const allProducts = response.data.products;
     
   
@@ -64,7 +64,7 @@ const TopProducts = ({ handleOrderPopup }) => {
   
   const checkWishlistStatus = async () => {
     try {
-      const response = await axios.get(`http://127.0.0.1:8000/api/wishlists`, {
+      const response = await axios.get(`http://192.168.137.160:8081/api/wishlists`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
@@ -96,7 +96,7 @@ const TopProducts = ({ handleOrderPopup }) => {
   
       if (wishlistStatus[productId]) {
         // Remove from wishlist
-        await axios.delete(`http://127.0.0.1:8000/api/wishlists/${productId}`, {
+        await axios.delete(`http://192.168.137.160:8081/api/wishlists/${productId}`, {
           headers: {
             Authorization: `Bearer ${authToken}`,
           },
@@ -108,7 +108,7 @@ const TopProducts = ({ handleOrderPopup }) => {
       } else {
         // Add to wishlist
         const response = await axios.post(
-          `http://127.0.0.1:8000/api/wishlists`,
+          `http://192.168.137.160:8081/api/wishlists`,
           { product_id: productId },
           {
             headers: {
@@ -184,7 +184,7 @@ const TopProducts = ({ handleOrderPopup }) => {
              <div className="product-img">
               <Link to={`/product/${data.id}`}>
                 {/* <ProductCardImage product_id={data.id} /> */}
-                <img src={`http://127.0.0.1:8000/storage/${data.images[0]?.image_path}`} alt="Product-main-img" className="product-main-image" />
+                <img src={`http://192.168.137.160:8081/storage/${data.images[0]?.image_path}`} alt="Product-main-img" className="product-main-image" />
               </Link>
               <Toaster
                 position="top-right"

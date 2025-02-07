@@ -25,7 +25,7 @@ const Login = () => {
     event.preventDefault();
 
     try {
-      const response = await axios.post("http://127.0.0.1:8000/api/login", { email, password });
+      const response = await axios.post("http://192.168.137.160:8081/api/login", { email, password });
       if (response.status === 200) {
         const { token } = response.data;
         login(token);
@@ -45,7 +45,7 @@ const Login = () => {
 
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
-      const response = await axios.post("http://127.0.0.1:8000/api/auth/google", {
+      const response = await axios.post("http://192.168.137.160:8081/api/auth/google", {
         token: credentialResponse.credential,
       });
       const { token, user } = response.data;

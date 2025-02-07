@@ -32,7 +32,7 @@ const Cart = () => {
     try {
       // Make API call to update quantity in the database
       const response = await axios.put(
-        `http://127.0.0.1:8000/api/cart/${id}`,
+        `http://192.168.137.160:8081/api/cart/${id}`,
         {
           quantity: updatedCartItems.find((item) => item.id === id).quantity,
         },
@@ -55,7 +55,7 @@ const Cart = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get("http://127.0.0.1:8000/api/cart", {
+        const response = await axios.get("http://192.168.137.160:8081/api/cart", {
           headers: {
             Authorization: `Bearer ${authToken}`,
           },
@@ -73,7 +73,7 @@ const Cart = () => {
 
   const deleteItem = async (id) => {
     try {
-      const response = await axios.delete(`http://127.0.0.1:8000/api/cart/${id}`, {
+      const response = await axios.delete(`http://192.168.137.160:8081/api/cart/${id}`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
@@ -212,7 +212,7 @@ const Cart = () => {
                         <td className="p-2 flex items-center gap-4">
                           <Link to={`/product/${item.product.id}`}>
                             <img
-                              src={`http://127.0.0.1:8000/storage/${item.product.images[0]?.image_path}`}
+                              src={`http://192.168.137.160:8081/storage/${item.product.images[0]?.image_path}`}
                               alt={item.product.name}
                               className="cart_item_image  rounded"
                             />

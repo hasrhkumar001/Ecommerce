@@ -22,7 +22,7 @@ useEffect(() => {
 
 const fetchReviews = async () => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/api/product/${productId}/reviews`);
+    const response = await axios.get(`http://192.168.137.160:8081/api/product/${productId}/reviews`);
     setReviews(response.data);
     calculateAverageRating(response.data);
   } catch (error) {
@@ -38,7 +38,7 @@ const handleSubmit = async (e) => {
 
   try {
     const response = await axios.post(
-      'http://127.0.0.1:8000/api/reviews',
+      'http://192.168.137.160:8081/api/reviews',
       { rating, review,reviewHeading, product_id: productId },
       {
         headers: {

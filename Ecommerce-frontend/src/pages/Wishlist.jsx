@@ -27,7 +27,7 @@ const Wishlist = () => {
         const fetchWishlistProducts = async () => {
           setLoading(true);
           try {
-            const response = await axios.get("http://127.0.0.1:8000/api/wishlists",{
+            const response = await axios.get("http://192.168.137.160:8081/api/wishlists",{
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('authToken')}`
                 }
@@ -65,7 +65,7 @@ const Wishlist = () => {
 
         const handleRemove = async (id) => {
           try {
-            await axios.delete(`http://127.0.0.1:8000/api/wishlists/${id}`, {
+            await axios.delete(`http://192.168.137.160:8081/api/wishlists/${id}`, {
               headers: {
                 Authorization: `Bearer ${localStorage.getItem("authToken")}`,
               },
@@ -164,7 +164,7 @@ const Wishlist = () => {
                             <td className="p-2 flex items-center gap-4">
                               <Link to={`/product/${item.product.id}`}>
                                 <img
-                                  src={`http://127.0.0.1:8000/storage/${item.product.images[0]?.image_path}`}
+                                  src={`http://192.168.137.160:8081/storage/${item.product.images[0]?.image_path}`}
                                   alt={item.product.name}
                                   className="cart_item_image  rounded"
                                 />

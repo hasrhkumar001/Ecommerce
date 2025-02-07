@@ -14,7 +14,7 @@ export const UserSidebar = ({ setSelectedPage }) => {
     },[])
     const fetchUserDetails = async () => {
       try {
-        const response = await axios.get("http://127.0.0.1:8000/api/users", {
+        const response = await axios.get("http://192.168.137.160:8081/api/users", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },

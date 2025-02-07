@@ -22,7 +22,7 @@ const CartItems = () => {
     try {
       // Make API call to update quantity in the database
       const response = await axios.put(
-        `http://127.0.0.1:8000/api/cart/${id}`,
+        `http://192.168.137.160:8081/api/cart/${id}`,
         {
           quantity: updatedCartItems.find((item) => item.id === id).quantity,
         },
@@ -44,7 +44,7 @@ const CartItems = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get("http://127.0.0.1:8000/api/cart", {
+        const response = await axios.get("http://192.168.137.160:8081/api/cart", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
@@ -73,7 +73,7 @@ const CartItems = () => {
   // Function to delete item
   const deleteItem = async (id) => {
     try {
-      await axios.delete(`http://127.0.0.1:8000/api/cart/${id}`, {
+      await axios.delete(`http://192.168.137.160:8081/api/cart/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
       });
       setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
@@ -108,7 +108,7 @@ const CartItems = () => {
                       <td className="p-2 flex items-center gap-4">
                         <Link to={`/product/${item.product.id}`}>
                           <img
-                            src={`http://127.0.0.1:8000/storage/${item.product.images[0].image_path}`}
+                            src={`http://192.168.137.160:8081/storage/${item.product.images[0].image_path}`}
                             alt={item.product.name}
                             className="w-16 h-16 object-cover rounded"
                           />

@@ -10,7 +10,7 @@ const ForgotPassword = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/forgot-password",
+        "http://192.168.137.160:8081/api/forgot-password",
         { email }
       );
       setMessage(response.data.message);

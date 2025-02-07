@@ -28,7 +28,7 @@ const ProductFilterSidebar = ({ filters, setFilters, applyFilters }) => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get("http://127.0.0.1:8000/api/categories");
+        const response = await axios.get("http://192.168.137.160:8081/api/categories");
         const allCategories = response.data;
         console.log(response.data);
         setCategories(allCategories);

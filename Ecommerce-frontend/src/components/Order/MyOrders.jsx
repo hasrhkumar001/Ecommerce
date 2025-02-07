@@ -22,7 +22,7 @@ const MyOrders = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await axios.get("http://127.0.0.1:8000/api/orders", {
+        const response = await axios.get("http://192.168.137.160:8081/api/orders", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
@@ -191,7 +191,7 @@ const MyOrders = () => {
                   className="flex items-center gap-4 border-b pb-4 mb-4"
                 >
                   <img
-                    src={`http://127.0.0.1:8000/storage/${item.product.images[0]?.image_path}`}
+                    src={`http://192.168.137.160:8081/storage/${item.product.images[0]?.image_path}`}
                     alt={item.product.name}
                     className="w-16 h-16 rounded-md"
                   />

@@ -15,7 +15,7 @@ export const ProductImages = ({ images = [] }) => {
   
   useEffect(() => {
     if (images.length > 0) {
-      setSelectedImage(`http://127.0.0.1:8000/storage/${images[0].image_path}`);
+      setSelectedImage(`http://192.168.137.160:8081/storage/${images[0].image_path}`);
       setIsLoading(false);
     }
   }, [images]);
@@ -70,7 +70,7 @@ export const ProductImages = ({ images = [] }) => {
             ))
           ) : (
             currentImages.map((image, index) => {
-              const thumbnailUrl = `http://127.0.0.1:8000/storage/${image.image_path}`;
+              const thumbnailUrl = `http://192.168.137.160:8081/storage/${image.image_path}`;
               return (
                 <img
                   key={index}

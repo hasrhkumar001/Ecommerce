@@ -21,12 +21,12 @@ export const ProductCardImage = ({ product_id }) => {
   const fetchImages = async () => {
     try {
       const response = await axios.get(
-        `http://127.0.0.1:8000/api/product-images/product/${product_id}`
+        `http://192.168.137.160:8081/api/product-images/product/${product_id}`
       );
       // console.log(response.data);
       const fetchedImages = response.data;
     setSelectedImage(
-          `http://127.0.0.1:8000/storage/${fetchedImages[0].image_path}`
+          `http://192.168.137.160:8081/storage/${fetchedImages[0].image_path}`
         );
       
     } catch (error) {
