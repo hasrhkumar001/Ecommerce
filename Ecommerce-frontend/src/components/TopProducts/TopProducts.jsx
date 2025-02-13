@@ -159,7 +159,7 @@ const TopProducts = ({ handleOrderPopup }) => {
         </div>
         {/* Body section */}
         <div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 place-items-stretch gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 place-items-stretch gap-5">
           {loading
         ? // Render skeleton loaders while loading
           Array.from({ length: 5 }).map((_, index) => (
@@ -209,18 +209,18 @@ const TopProducts = ({ handleOrderPopup }) => {
               <Link to={`/product/${data.id}`}>
               <div className="product-content p-4 ">
                 <div className="flex justify-between">
-                  <h3 className="font-semibold text-left text-lg text-dark">{data.brand.name}</h3>
+                  <h3 className="font-semibold text-left  text-dark">{data.brand.name}</h3>
                   <div className="flex items-center px-2 py-1 rounded-full">
                       <span className="text-gray-800 font-medium mr-1">{Math.round((data.average_rating ?? 0) * 100) / 100}</span>
                       <FaStar className="text-yellow-400" />
                   </div>
                 </div>
                 <p className="text-left text-gray-500">
-                  {data.name} from <span className="text-gray-700 font-medium">{data.category.name}</span>
+                  {data.name} 
                 </p>
                 <div className="flex justify-between items-center mt-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold  text-dark">₹{data.discounted_price}</span>
+                    <span className=" font-bold  text-dark">₹{data.discounted_price}</span>
                     <span className="sidebar-sub-option text-gray-500 line-through">₹{data.price}</span>
                     <span className="sidebar-sub-option text-red-500">
                       ({Math.round(((data.price - data.discounted_price) / data.price) * 100)}% OFF)

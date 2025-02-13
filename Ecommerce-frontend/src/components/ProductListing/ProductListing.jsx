@@ -207,7 +207,7 @@ const ProductListing = () => {
        <main className="products">
          {isLoading ?(
            [...Array(8)].map((_, index) => (
-         <div className="space-y-3 border shadow-md product-container">
+         <div className="space-y-3 border shadow-md product-container"  style={{width:"250px"}}>
          {/* Image Section */}
          <div className="product-img relative">
            <Skeleton height={224} className="rounded-md" />
@@ -252,6 +252,7 @@ const ProductListing = () => {
               
               key={data.id}
               className="space-y-3 border shadow-md product-container "
+              style={{width:"250px"}}
             >
              <div className="product-img">
               <Link to={`/product/${data.id}`}>
@@ -281,7 +282,7 @@ const ProductListing = () => {
               <Link to={`/product/${data.id}`}>
               <div className="product-content p-4 ">
                 <div className="flex justify-between">
-                  <h3 className="font-semibold text-left text-lg text-dark">{data.brand.name}</h3>
+                  <h3 className="font-semibold text-left  text-dark">{data.brand.name}</h3>
                   <div className="flex items-center px-2 py-1 rounded-full">
                       <span className="text-gray-800 font-medium mr-1">{data.average_rating}</span>
                       <FaStar className="text-yellow-400" />
@@ -293,7 +294,7 @@ const ProductListing = () => {
                 </p>
                 <div className="flex justify-between items-center mt-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold  text-dark">₹{data.discounted_price}</span>
+                    <span className=" font-bold  text-dark">₹{data.discounted_price}</span>
                     <span className="sidebar-sub-option text-gray-500 line-through">₹{data.price}</span>
                     <span className="sidebar-sub-option text-red-500">
                       ({Math.round(((data.price - data.discounted_price) / data.price) * 100)}% OFF)

@@ -69,7 +69,8 @@
     text-align: center;
     cursor: pointer;
     /* box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); */
-    width: 250px;
+    width: 100%;
+    border-radius: 0.75rem;
    
 }
 .product-content{
@@ -351,8 +352,9 @@
 .sorting-select{
   width: auto;
   padding: 2px;
+  font-size: 12px;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  border-radius: 0.75rem;
 }
   .product-listing-container {
   display: grid;
@@ -362,13 +364,43 @@
 .sidebar-sub-option{
   font-size: 12px;
 }
+/* Add this to your CSS file */
+.nav-links {
+  display: flex;
+}
+
+.mobile-menu {
+  display: none;
+  position: absolute;
+  background-color: white;
+  top: 50px;
+  left: 0;
+  width: 100%;
+
+}
+
+@media (max-width: 640px) {
+  .nav-links {
+    display: none;
+  }
+
+  .mobile-menu {
+    display: block;
+  }
+}
 
 .filters {
   width: 250px;
   height: max-content;
-
+  border-radius: 0.75rem;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  
+}
+
+@media (max-width: 640px) {
+  .filters {
+    width: 100%; /* Full width on small screens */
+  }
 }
 
 .filter-group {
@@ -717,4 +749,6 @@
   width: 100%;
   object-fit: cover;
   object-position: top;
+  border-top-right-radius: 0.75rem;
+  border-top-left-radius: 0.75rem;
 }

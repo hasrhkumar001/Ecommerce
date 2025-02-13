@@ -21,24 +21,60 @@ const Login = () => {
     }
   }, [authToken, navigate]);
 
+  // Validate form fields
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!email) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = "Email address is invalid";
+    }
+
+    if (!password) {
+      newErrors.password = "Password is required";
+    } else if (password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0; // Return true if no errors
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    // Validate form before submission
+    if (!validateForm()) {
+      return;
+    }
+
     try {
-      const response = await axios.post("http://192.168.137.160:8081/api/login", { email, password });
+      const response = await axios.post("http://192.168.137.160:8081/api/login", {
+        email,
+        password,
+      });
+
       if (response.status === 200) {
         const { token } = response.data;
-        login(token);
+        login(token); // Update auth context
         console.log("Login successful");
         navigate("/"); // Redirect to the home page
       }
     } catch (error) {
-      if (error.response && error.response.status === 422) {
-        // Validation errors from the API
-        setErrors(error.response.data.errors || {});
+      if (error.response) {
+        if (error.response.status === 422) {
+          // Validation errors from the API
+          setErrors(error.response.data.errors || {});
+        } else if (error.response.status === 404) {
+          // User does not exist
+          setMessage("User with this email does not exist.");
+        } else {
+          // Generic error message
+          setMessage("Invalid credentials. Please try again.");
+        }
       } else {
-        // Generic error message
-        setMessage("Invalid credentials. Please try again.");
+        setMessage("An error occurred. Please try again.");
       }
     }
   };
@@ -48,16 +84,18 @@ const Login = () => {
       const response = await axios.post("http://192.168.137.160:8081/api/auth/google", {
         token: credentialResponse.credential,
       });
-      const { token, user } = response.data;
+      const { token } = response.data;
       login(token); // Update auth context
-  
+      navigate("/"); // Redirect to the home page
     } catch (error) {
       console.error("Google login failed:", error);
+      setMessage("Google login failed. Please try again.");
     }
   };
 
   const handleGoogleError = () => {
     console.error("Google login error");
+    setMessage("Google login error. Please try again.");
   };
 
   return (
@@ -78,8 +116,9 @@ const Login = () => {
             <div className="mt-4">
               <label className="block text-gray-700 text-sm font-bold mb-2">Email Address</label>
               <input
-                className={`text-gray-700 border ${errors.email ? "border-red-500" : "border-gray-300"} 
-                  rounded py-2 px-4 block w-full focus:outline-2 focus:outline-blue-700`}
+                className={`text-gray-700 border ${
+                  errors.email ? "border-red-500" : "border-gray-300"
+                } rounded py-2 px-4 block w-full focus:outline-2 focus:outline-blue-700`}
                 type="email"
                 onChange={(e) => {
                   setEmail(e.target.value);
@@ -88,25 +127,23 @@ const Login = () => {
                 value={email}
                 required
               />
-              {errors.email && (
-                <p className="text-red-500 text-xs mt-1">{errors.email}</p>
-              )}
+              {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
             </div>
             <div className="mt-4">
               <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
               <input
-                className={`text-gray-700 border ${errors.password ? "border-red-500" : "border-gray-300"} 
-                  rounded py-2 px-4 block w-full focus:outline-2 focus:outline-blue-700`}
+                className={`text-gray-700 border ${
+                  errors.password ? "border-red-500" : "border-gray-300"
+                } rounded py-2 px-4 block w-full focus:outline-2 focus:outline-blue-700`}
                 type="password"
                 onChange={(e) => {
                   setPassword(e.target.value);
                   setErrors({ ...errors, password: null }); // Clear password error when typing
                 }}
                 value={password}
+                required
               />
-              {errors.password && (
-                <p className="text-red-500 text-xs mt-1">{errors.password}</p>
-              )}
+              {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
             </div>
             <div className="mt-8">
               <button className="bg-blue-700 text-white font-bold py-2 px-4 w-full rounded hover:bg-blue-600">

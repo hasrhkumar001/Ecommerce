@@ -188,7 +188,7 @@ const RecentlyViewedProducts = () => {
                 </div>
               </div>
               <p className="text-left text-gray-500">
-                {data.name} from <span className="text-gray-700 font-medium">{data.category.name}</span>
+                {data.name} 
               </p>
               <div className="flex justify-between items-center mt-3">
                 <div className="flex items-center gap-2">

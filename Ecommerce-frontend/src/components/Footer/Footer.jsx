@@ -63,7 +63,7 @@ const Footer = () => {
   return (<>
     <div className="flex items-center justify-around   py-6 shadow-md" style={{marginTop:"50px"}}>
       {features.map((feature, index) => (
-        <div key={index} className="flex items-center space-x-4">
+        <div key={index} className="flex items-center flex-col md:flex-row space-x-4">
           <div>{feature.icon}</div>
           <div>
             <h3 className="text-lg text-black dark:text-white font-semibold">{feature.title}</h3>
@@ -74,7 +74,7 @@ const Footer = () => {
     </div>
     <div style={{backgroundColor:"black"}} className="text-white">
       <div className="container relative bottom-0">
-        <div data-aos="zoom-in" className="grid md:grid-cols-3 pb-32 pt-5">
+        <div  className="grid md:grid-cols-3 pb-32 pt-5">
           {/* company details */}
           <div className="py-8 px-4">
             <h1 className="sm:text-3xl text-xl font-bold sm:text-left text-justify mb-3 flex items-center gap-3">

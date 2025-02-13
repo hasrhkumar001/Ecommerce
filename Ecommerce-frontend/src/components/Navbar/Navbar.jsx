@@ -4,6 +4,7 @@ import Logo from "../../assets/logo.png";
 import { IoMdSearch } from "react-icons/io";
 import { FaCaretDown } from "react-icons/fa";
 import { FiShoppingCart, FiUser, FiHeart, FiSearch } from "react-icons/fi";
+import { FaBars, FaTimes } from "react-icons/fa";
 import DarkMode from "./DarkMode";
 import { Link, useLocation } from "react-router-dom";
 import { AuthContext } from "../AuthContext";
@@ -38,6 +39,7 @@ const Menu = [
 
 function Navbar() {
   const { authToken, logout, login } = useContext(AuthContext);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [categories, setCategories] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -159,6 +161,7 @@ function Navbar() {
               UrbanAura
             </Link>
           </div>
+          
           <div className="flex justify-center">
           <div className="sm:flex nav-links items-center">
             {Menu.map((menuItem) => (
@@ -199,6 +202,8 @@ function Navbar() {
        
           </div>
 
+          
+
           {/* Search Bar and Icons */}
           <div className="flex justify-between items-center">
             <div className="relative group hidden sm:block">
@@ -229,28 +234,30 @@ function Navbar() {
                 }`}
                 style={{ zIndex: 99999 }}
               />
-            {isSearchOpen && searchResults.length > 0 && (
-              <div className="absolute search-results z-50 mt-2  bg-white border border-gray-300 rounded shadow-md">
-                {isLoading ? (
-                  <div className="p-3 text-center">Loading...</div>
-                ) : (
-                  searchResults.map((product) => (
-                    <Link
-                      key={product.id}
-                      to={`/product/${product.id}`}
-                      className="block px-4 py-2 hover:bg-gray-100"
-                    >
-                      <div>
-                        <p>{product.name}</p>
-                        <p className="text-sm text-gray-500">
-                          {product.brand.name} - ₹{product.discounted_price}
-                        </p>
-                      </div>
-                    </Link>
-                  ))
-                )}
-              </div>
-            )}
+            {isSearchOpen && (
+  <div className="absolute search-results z-50 mt-2 bg-white border border-gray-300 rounded shadow-md">
+    {isLoading ? (
+      <div className="p-3 text-center">Loading...</div>
+    ) : searchResults.length > 0 ? (
+      searchResults.map((product) => (
+        <Link
+          key={product.id}
+          to={`/product/${product.id}`}
+          className="block px-4 py-2 hover:bg-gray-100"
+        >
+          <div>
+            <p>{product.name}</p>
+            <p className="text-sm text-gray-500">
+              {product.brand.name} - ₹{product.discounted_price}
+            </p>
+          </div>
+        </Link>
+      ))
+    ) : (
+      <div className="p-3 text-center text-gray-500">No products found</div>
+    )}
+  </div>
+)}
             </div>
 
             <div className="flex">
@@ -274,6 +281,27 @@ function Navbar() {
               <DarkMode />
             </div>
           </div>
+          <div className="sm:hidden">
+            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+              {isMobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+            </button>
+          </div>
+          {isMobileMenuOpen && (
+        <div className="sm:hidden mobile-menu">
+          <div className="flex flex-col items-center">
+            {Menu.map((menuItem) => (
+              <Link
+                key={menuItem.id}
+                to={menuItem.link}
+                className="block p-2"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {menuItem.name}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
         </div>
       </div>
     </div>

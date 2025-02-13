@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useState, useEffect } from "react";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { useParams } from "react-router-dom";
+import { FaTimesCircle } from "react-icons/fa";
 import ColorFilter from "../ColorFilterOption/ColorFilter";
 
 const ProductFilterSidebar = ({ filters, setFilters, applyFilters }) => {
@@ -256,6 +257,7 @@ const ProductFilterSidebar = ({ filters, setFilters, applyFilters }) => {
               min={0}
               max={10000}
               value={filters.priceRange[0]}
+              step="50"
               onChange={(e) => handlePriceChange("min", e.target.value)}
               className="thumb thumb-left"
             />
@@ -263,6 +265,7 @@ const ProductFilterSidebar = ({ filters, setFilters, applyFilters }) => {
               type="range"
               min={0}
               max={10000}
+              step="50"
               value={filters.priceRange[1]}
               onChange={(e) => handlePriceChange("max", e.target.value)}
               className="thumb thumb-right"
@@ -274,6 +277,7 @@ const ProductFilterSidebar = ({ filters, setFilters, applyFilters }) => {
               value={filters.priceRange[0]}
               onChange={(e) => handlePriceChange("min", e.target.value)}
               min={0}
+              step="50"
               max={filters.priceRange[1] - 1}
               className="value-input"
             />
@@ -283,6 +287,7 @@ const ProductFilterSidebar = ({ filters, setFilters, applyFilters }) => {
               onChange={(e) => handlePriceChange("max", e.target.value)}
               min={filters.priceRange[0] + 1}
               max={10000}
+              step="50"
               className="value-input"
             />
           </div>
@@ -290,11 +295,41 @@ const ProductFilterSidebar = ({ filters, setFilters, applyFilters }) => {
       )}
     </div>
   );
+  const isAnyFilterSelected = () => {
+    return (
+      filters.category?.length > 0 ||
+      filters.size?.length > 0 ||
+      filters.rating?.length > 0 ||
+      filters.priceRange[0] !== 0 ||
+      filters.priceRange[1] !== 10000
+    );
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      category: [],
+      priceRange: [0, 10000],
+      sizes: [],
+      rating: [],
+    });
+    setSelectedCategory(null);
+    setSelectedGender(null);
+    handleCategoryChange();
+    handleCheckboxChange();
+    handleGenderChange();
+    handlePriceChange();
+  };
 
   return (
     <aside className="filters mt-3">
-      <div className="px-4 py-2 border-b">
+      <div className="px-4 py-2 border-b flex justify-between items-center ">
       <h2 className="text-lg font-semibold text-dark">Filter Options</h2>
+      {isAnyFilterSelected() && (
+          <FaTimesCircle
+            onClick={clearFilters}
+            className="cursor-pointer text-gray-600 hover:text-gray-800"
+          />
+        )}
       </div>
       <div className="px-4">
       

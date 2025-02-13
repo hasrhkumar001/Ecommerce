@@ -154,7 +154,7 @@ const Products = () => {
         </div>
         {/* Body section */}
         <div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 place-items-stretch gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 place-items-stretch gap-5">
 
           {loading
         ? // Render skeleton loaders while loading
@@ -212,11 +212,11 @@ const Products = () => {
                   </div>
                 </div>
                 <p className="text-left text-gray-500">
-                  {data.name} from <span className="text-gray-700 font-medium">{data.category.name}</span>
+                  {data.name}
                 </p>
                 <div className="flex justify-between items-center mt-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold  text-dark">₹{data.discounted_price}</span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className=" font-bold  text-dark">₹{data.discounted_price}</span>
                     <span className="sidebar-sub-option text-gray-500 line-through">₹{data.price}</span>
                     <span className="sidebar-sub-option text-red-500">
                       ({Math.round(((data.price - data.discounted_price) / data.price) * 100)}% OFF)
