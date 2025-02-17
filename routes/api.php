@@ -1,12 +1,13 @@
 <?php
 
-use App\Http\Controllers\Auth\PasswordResetController;
+use App\Http\Controllers\Auth\ForgetPasswordController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductImagesController;
 use App\Http\Controllers\RecentlyViewedController;
+use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ShippingDetailController;
 use App\Http\Controllers\UserController;
@@ -44,8 +45,8 @@ Route::get('/product/{productId}/reviews', [ReviewController::class, 'index']);
 Route::get('/product/{productId}/variants', [ProductVariantController::class, 'getVariants']);
 
 Route::get('/categories', [CategoryController::class, 'index']);
-Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLinkEmail']);
-Route::post('/reset-password', [PasswordResetController::class, 'reset'])->name('password.reset');
+Route::post('/forgot-password', [ForgetPasswordController::class, 'sendResetLinkEmail']);
+Route::post('/reset-password', [ResetPasswordController::class, 'reset']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('users', UserController::class);
@@ -55,6 +56,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/cart', [CartController::class, 'addToCart']);
     Route::put('/cart/{id}', [CartController::class, 'update']);
     Route::delete('/cart/{id}', [CartController::class, 'removeFromCart']);
+    Route::delete('/clear-cart', [CartController::class, 'clearCart']);
 
     Route::get('/shipping-details', [ShippingDetailController::class, 'index']); // Fetch all shipping details
     Route::post('/shipping-details', [ShippingDetailController::class, 'store']); // Add a new shipping detail
@@ -63,6 +65,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/shipping-details/{id}', [ShippingDetailController::class, 'destroy']); // Delete a shipping detail
 
     Route::apiResource('orders', OrderController::class);
+    Route::post('/orders/cancel/{id}', [OrderController::class, 'cancelOrder']);
     Route::post('/reviews', [ReviewController::class, 'store']);
 
     Route::get('/wishlists', [WishlistController::class, 'index']); // Get all wishlist items

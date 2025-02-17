@@ -110,4 +110,34 @@ class CartController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Item removed from cart.']);
     }
+    public function clearCart(Request $request)
+    {
+        // Ensure the user is authenticated
+        if (!Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access.',
+            ], 401);
+        }
+
+        $userId = Auth::id();
+
+        // Check if the user has cart items
+        $cartItems = Cart::where('user_id', $userId);
+        if (!$cartItems->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No items found in the cart.',
+            ]);
+        }
+
+        // Delete all cart items for the user
+        $cartItems->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'All cart items have been removed.',
+        ]);
+    }
+
 }

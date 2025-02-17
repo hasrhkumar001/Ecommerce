@@ -9,6 +9,8 @@ class OrderDetails extends Component
 {
     public $orders;
     public $editOrderId;
+     public $orderDetailsId;
+     public $selectedOrder;
     public $status;
 
     protected $rules = [
@@ -18,13 +20,20 @@ class OrderDetails extends Component
     public function mount()
     {
         // Fetch orders and related shipping details
-        $this->orders = Order::with(['shippingDetail', 'user'])->get();
+        $this->orders = Order::with(['shippingDetail', 'user','orderDetails'])->get();
     }
 
     public function editStatus($orderId)
     {
         $this->editOrderId = $orderId;
         $this->status = Order::find($orderId)->status;
+    }
+    public function viewDetails($orderId)
+    {
+        $this->orderDetailsId = $orderId;
+    $this->selectedOrder = Order::where('id', $orderId)
+                                 ->with(['shippingDetail', 'user', 'orderDetails.product.images'])
+                                 ->first();
     }
 
     public function updateStatus()

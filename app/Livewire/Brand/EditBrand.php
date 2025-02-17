@@ -5,6 +5,8 @@ namespace App\Livewire\Brand;
 use App\Models\Brand;
 use Illuminate\Support\Str;
 use Livewire\Component;
+use Illuminate\Validation\Rule;
+
 
 class EditBrand extends Component
 {
@@ -22,19 +24,30 @@ class EditBrand extends Component
 
     public function update()
     {
+        $this->name = trim($this->name);
+        $category = Brand::findOrFail($this->brand_id);
         $this->validate([
-            'name' => 'required',
-            'status' => 'required',
+            'name' => [
+                'required',
+                'max:255',
+                'regex:/^[a-zA-Z0-9\s]+$/',
+                Rule::unique('brands', 'name')->ignore($category->id),
+            ],
+            'status' => ['required'],
         ]);
 
-        $category = Brand::find($this->brand_id);
-        $category->update([
-            'name' => $this->name,
-            'status' => $this->status,
-            'slug' => Str::slug($this->name),
-        ]);
-
-        session()->flash('message', 'Brand Updated Successfully.');
+        
+        if ($category->name !== $this->name || $category->status !== $this->status) {
+            $category->update([
+                'name' => $this->name,
+                'status' => $this->status,
+                'slug' => Str::slug($this->name),
+            ]);
+    
+            session()->flash('message', 'Brand Updated Successfully.');
+        } else {
+            session()->flash('message', 'No changes made.');
+        }
         return redirect()->route('brand.list');
     }
     public function render()

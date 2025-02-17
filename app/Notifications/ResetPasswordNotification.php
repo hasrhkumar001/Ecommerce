@@ -35,12 +35,12 @@ class ResetPasswordNotification extends Notification
      */
     public function toMail($notifiable)
     {
-        $frontendUrl = config('app.frontend_url'); // Get FRONTEND_URL from .env
+        $resetUrl = "http://192.168.137.160:5173/reset-password?token={$this->token}&email={$notifiable->email}";
 
         return (new MailMessage)
-            ->subject('Reset Password Notification')
+            ->subject('Reset Password Request')
             ->line('You are receiving this email because we received a password reset request for your account.')
-            ->action('Reset Password', "{$frontendUrl}/password-reset?token={$this->token}&email={$notifiable->email}")
+            ->action('Reset Password', $resetUrl)
             ->line('If you did not request a password reset, no further action is required.');
     }
 
