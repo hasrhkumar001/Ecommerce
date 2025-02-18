@@ -104,6 +104,11 @@ class UserController extends Controller
             'name' => ['sometimes', 'string', 'max:255'],
             'phone' => ['sometimes', 'string', 'max:20'],
             'address' => ['sometimes', 'string'],
+            'email' => ['sometimes', 
+            'string', 
+            'email', 
+            'max:255', 
+            Rule::unique('users')->ignore($user->id)],
            
         ]);
 

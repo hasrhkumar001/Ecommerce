@@ -34,7 +34,9 @@ class ProductList extends Component
     {
         $this->categories = Category::all();
         return view('livewire.product.product-list', [
-            'products' => Product::with('category', 'brand')->get()
+            'products' => Product::whereHas('brand', function ($query) {
+                $query->whereNull('deleted_at'); // Exclude soft-deleted brands
+            })->with('category', 'brand')->get()
         ],);
     }
     
