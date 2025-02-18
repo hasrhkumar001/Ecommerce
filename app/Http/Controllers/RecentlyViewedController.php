@@ -41,10 +41,22 @@ class RecentlyViewedController extends Controller
 
     // Fetch the recently viewed products for the user
     $recentlyViewed = RecentlyViewed::where('user_id', $userId)
-        ->orderBy('updated_at', 'desc')
-        ->take(5) // Limit to the last 5 items
-        ->with('product')
-        ->get();
+    ->whereHas('product', function ($query) {
+        $query->whereNull('deleted_at') // Ensure product is not trashed
+              ->whereHas('brand', function ($brandQuery) {
+                  $brandQuery->whereNull('deleted_at'); // Ensure brand is not trashed
+              });
+    })
+    ->orderBy('updated_at', 'desc')
+    ->take(5)
+    ->with(['product' => function ($query) {
+        $query->whereNull('deleted_at')
+              ->whereHas('brand', function ($brandQuery) {
+                  $brandQuery->whereNull('deleted_at');
+              });
+    }])
+    ->get();
+
 
     // If no recently viewed items found, return an empty response
     if ($recentlyViewed->isEmpty()) {

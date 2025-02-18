@@ -27,7 +27,7 @@ class ProductController extends Controller
     }
 
     // Get all products
-    public function index(Request $request)
+     public function index(Request $request)
     {
         $query = Product::query();
 
@@ -82,6 +82,10 @@ class ProductController extends Controller
         // Exclude products with all variants having 0 quantity
         $query->whereHas('variants', function ($variantQuery) {
             $variantQuery->where('stock', '>', 0);
+        });
+
+        $query->whereHas('brand', function ($brandQuery) {
+            $brandQuery->where('status', 'Active');
         });
 
         $sortOrder = $request->input('sort_order', 'asc'); // Default to 'asc' if no sort_order is provided
@@ -260,17 +264,26 @@ class ProductController extends Controller
     {
         // Cache the recent products for 10 minutes
         $products = Cache::remember('recent_products', now()->addMinutes(10), function () {
-            return Product::latest()->take(5)->with([
-                'brand',
-                'category',
-                'images',
-                'variants' => function ($variantQuery) {
-                    $variantQuery->where('stock', '>', 0);
-                },
-            ])->withAvg('reviews as average_rating', 'rating') // Calculate average rating
-            ->withCount('reviews') // Count number of reviews
-            ->where('status', 'active')->get();
+            return Product::latest()
+                ->where('status', 'active')
+                ->whereNull('deleted_at') // Ensure product is not trashed
+                ->whereHas('brand', function ($query) {
+                    $query->whereNull('deleted_at'); // Ensure brand is not trashed
+                })
+                ->take(5)
+                ->with([
+                    'brand',
+                    'category',
+                    'images',
+                    'variants' => function ($variantQuery) {
+                        $variantQuery->where('stock', '>', 0);
+                    },
+                ])
+                ->withAvg('reviews as average_rating', 'rating') // Calculate average rating
+                ->withCount('reviews') // Count number of reviews
+                ->get();
         });
+        
        
     
         return response()->json([
@@ -283,8 +296,13 @@ class ProductController extends Controller
     public function topProducts()
     {
            // Cache the result for 10 minutes (adjust as needed)
-        $products = Cache::remember('top_products', now()->addMinutes(10), function () {
+           $products = Cache::remember('top_products', now()->addMinutes(10), function () {
             return Product::query()
+                ->where('status', 'active')
+                ->whereNull('deleted_at') // Ensure product is not trashed
+                ->whereHas('brand', function ($query) {
+                    $query->whereNull('deleted_at'); // Ensure brand is not trashed
+                })
                 ->withAvg('reviews as average_rating', 'rating') // Calculate average rating
                 ->withCount('reviews') // Count number of reviews
                 ->orderByDesc('average_rating') // Sort by average rating
@@ -296,10 +314,10 @@ class ProductController extends Controller
                     'variants' => function ($variantQuery) {
                         $variantQuery->where('stock', '>', 0);
                     },
-                    ])
-                ->where('status', 'active')
+                ])
                 ->get();
         });
+        
         
     
         return response()->json([
