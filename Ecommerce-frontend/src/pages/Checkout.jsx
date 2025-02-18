@@ -404,7 +404,7 @@ const Checkout = () => {
               name="payment"
               value="Credit Card"
               onChange={(e) => setPaymentMethod(e.target.value)}
-              disabled
+              
             />
             <label htmlFor="credit" className="ml-2">
               Credit Card
@@ -417,9 +417,9 @@ const Checkout = () => {
               name="payment"
               value="UPI"
               onChange={(e) => setPaymentMethod(e.target.value)}
-              disabled
+             
             />
-            <label htmlFor="UPI" className="ml-2">
+            <label htmlFor="paypal" className="ml-2">
               UPI
             </label>
           </div>

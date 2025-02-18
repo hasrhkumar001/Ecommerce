@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
 import signup_img from "../assets/signup.jpg";
 
 const Register = () => {
@@ -42,6 +43,8 @@ const Register = () => {
             newErrors.password = 'Password is required';
         } else if (password.length < 6) {
             newErrors.password = 'Password must be at least 6 characters';
+        } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/.test(password)) {
+            newErrors.password = 'Password must include uppercase, lowercase, number, and special character';
         }
 
         if (!address) {
@@ -94,6 +97,24 @@ const Register = () => {
         }
     };
 
+    const handleGoogleSuccess = async (credentialResponse) => {
+        try {
+          const response = await axios.post("http://192.168.137.160:8081/api/auth/google", {
+            token: credentialResponse.credential,
+          });
+          const { token } = response.data;
+          login(token); // Update auth context
+          navigate("/"); // Redirect to the home page
+        } catch (error) {
+          console.error("Google login failed:", error);
+          setMessage("Google login failed. Please try again.");
+        }
+      };
+    
+      const handleGoogleError = () => {
+        console.error("Google login error");
+        setMessage("Google login error. Please try again.");
+      };
     return (
         <div className="flex items-center justify-center checkout-container w-full px-5 sm:px-0">
             <div className="flex bg-white rounded-lg shadow-lg border overflow-hidden max-w-sm lg:max-w-4xl w-full">
@@ -110,7 +131,7 @@ const Register = () => {
                             <input
                                 className={`text-gray-700 border ${errors.name ? 'border-red-500' : 'border-gray-300'} rounded py-2 px-4 block w-full focus:outline-2 focus:outline-blue-700`}
                                 type="text" onChange={(e) => { setName(e.target.value); }} value={name}
-                                required
+                                
                             />
                             {errors.name && <p className="text-red-500 text-xs italic">{errors.name}</p>}
                         </div>
@@ -121,7 +142,7 @@ const Register = () => {
                             <input
                                 className={`text-gray-700 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded py-2 px-4 block w-full focus:outline-2 focus:outline-blue-700`}
                                 type="email" onChange={(e) => { setEmail(e.target.value); }} value={email}
-                                required
+                                
                             />
                             {errors.email && <p className="text-red-500 text-xs italic">{errors.email}</p>}
                         </div>
@@ -134,7 +155,7 @@ const Register = () => {
                             <input
                                 className={`text-gray-700 border ${errors.password ? 'border-red-500' : 'border-gray-300'} rounded py-2 px-4 block w-full focus:outline-2 focus:outline-blue-700`}
                                 type="password" onChange={(e) => { setPassword(e.target.value); }} value={password}
-                                required
+                                
                             />
                             {errors.password && <p className="text-red-500 text-xs italic">{errors.password}</p>}
                         </div>
@@ -147,7 +168,7 @@ const Register = () => {
                             <input
                                 className={`text-gray-700 border ${errors.phoneNo ? 'border-red-500' : 'border-gray-300'} rounded py-2 px-4 block w-full focus:outline-2 focus:outline-blue-700`}
                                 type="tel" onChange={(e) => { setPhoneNo(e.target.value); }} value={phoneNo}
-                                required
+                                
                             />
                             {errors.phoneNo && <p className="text-red-500 text-xs italic">{errors.phoneNo}</p>}
                         </div>
@@ -160,7 +181,7 @@ const Register = () => {
                             <input
                                 className={`text-gray-700 border ${errors.address ? 'border-red-500' : 'border-gray-300'} rounded py-2 px-4 block w-full focus:outline-2 focus:outline-blue-700`}
                                 type="text" onChange={(e) => { setAddress(e.target.value); }} value={address}
-                                required
+                            
                             />
                             {errors.address && <p className="text-red-500 text-xs italic">{errors.address}</p>}
                         </div>
@@ -168,6 +189,12 @@ const Register = () => {
                             <button className="bg-blue-700 text-white font-bold py-2 px-4 w-full rounded hover:bg-blue-600">
                                 Sign up
                             </button>
+                        </div>
+                        <div className="flex gap-1 justify-center mt-3">
+                        <p className="text-center fw-bold mx-2">or</p>
+                        </div>
+                        <div className="mt-3">
+                        <GoogleLogin onSuccess={handleGoogleSuccess} onError={handleGoogleError} />
                         </div>
                         <div className="mt-4 flex items-center w-full text-center">
                             <a

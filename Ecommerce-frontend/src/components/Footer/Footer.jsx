@@ -23,15 +23,15 @@ const BannerImg = {
 const FooterLinks = [
   {
     title: "Home",
-    link: "/#",
+    link: "/",
   },
   {
     title: "About",
-    link: "/#about",
+    link: "/about-us",
   },
   {
     title: "Contact",
-    link: "/#contact",
+    link: "/contact-us",
   },
   
 ];
@@ -88,7 +88,7 @@ const Footer = () => {
           </div>
 
           {/* Footer Links */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 col-span-2 md:pl-10">
+          <div className="grid   md:grid-cols-3 col-span-2 md:pl-10">
             <div>
               <div className="py-8 px-4">
                 <h1 className="sm:text-xl text-xl font-bold sm:text-left text-justify mb-3">
@@ -96,45 +96,31 @@ const Footer = () => {
                 </h1>
                 <ul className="flex flex-col gap-3">
                   {FooterLinks.map((link) => (
+                    <Link to={link.link}>
                     <li
                       className="cursor-pointer hover:text-primary hover:translate-x-1 duration-300 text-gray-200"
                       key={link.title}
                     >
                       <span>{link.title}</span>
                     </li>
+                    </Link>
                   ))}
                 </ul>
               </div>
             </div>
-            <div>
-              <div className="py-8 px-4">
-                <h1 className="sm:text-xl text-xl font-bold sm:text-left text-justify mb-3">
-                  Links
-                </h1>
-                <ul className="flex flex-col gap-3">
-                  {FooterLinks.map((link) => (
-                    <li
-                      className="cursor-pointer hover:text-primary hover:translate-x-1 duration-300 text-gray-200"
-                      key={link.title}
-                    >
-                      <span>{link.title}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
+           
 
             {/* social links */}
 
             <div>
               <div className="flex items-center gap-3 mt-6">
-                <Link to="#">
+                <Link to="https://www.instagram.com">
                   <FaInstagram className="text-3xl" />
                 </Link>
-                <Link to="#">
+                <Link to="https://www.facebook.com">
                   <FaFacebook className="text-3xl" />
                 </Link>
-                <Link to="#">
+                <Link to="https://www.linkedin.com">
                   <FaLinkedin className="text-3xl" />
                 </Link>
               </div>
@@ -145,7 +131,9 @@ const Footer = () => {
                 </div>
                 <div className="flex items-center gap-3 mt-3">
                   <FaMobileAlt />
-                  <p>+91 123456789</p>
+                  <Link to="tel:+911234567890">
+                  <p>+91 1234567890</p>
+                  </Link>
                 </div>
               </div>
             </div>

@@ -178,11 +178,11 @@ function Navbar() {
 
                 {/* Mega Menu Dropdown */}
                 {["Kids", "Mens", "Womens"].includes(menuItem.name) &&  dropdownData[menuItem.name.toLowerCase()]?.length > 0 &&  (
-                  <div className="absolute z-[9999] hidden transition-all ease-in-out delay-100 group-hover:block bg-white border w-auto mega-menu p-4 " >
+                  <div className="absolute z-[9999] hidden transition-all ease-in-out delay-100 group-hover:block bg-white dark:bg-gray-800 border w-auto mega-menu p-4 " >
                     <div className="grid grid-cols-3 gap-4">
                       {dropdownData[menuItem.name.toLowerCase()].map((subCat) => (
                         <div key={subCat.id}>
-                          <Link to={`/products/${subCat.slug}`} className="font-bold text-black mb-2">{subCat.name}</Link>
+                          <Link to={`/products/${subCat.slug}`} className="font-bold text-black dark:text-white mb-2">{subCat.name}</Link>
 
                           {/* Render Recursive Subcategories */}
                           {groupedCategories[subCat.id]?.length > 0 && (

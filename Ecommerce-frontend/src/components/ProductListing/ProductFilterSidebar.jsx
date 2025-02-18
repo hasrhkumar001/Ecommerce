@@ -5,26 +5,23 @@ import { useParams } from "react-router-dom";
 import { FaTimesCircle } from "react-icons/fa";
 import ColorFilter from "../ColorFilterOption/ColorFilter";
 
-const ProductFilterSidebar = ({ filters, setFilters, applyFilters }) => {
+const ProductFilterSidebar = ({ filters, setFilters, applyFilters,resetSorting }) => {
   const [expandedSections, setExpandedSections] = useState({
     category: false,
     price: true,
     size: true,
     rating: false,
-    subcategory:true,
+    subcategory: true,
   });
-  const {categoryParam} = useParams();
+  const { categoryParam } = useParams();
   const [selectedGender, setSelectedGender] = useState(null);
-  const [categories,setCategories] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
 
   const toggleCategory = () => {
     setIsCategoryOpen((prev) => !prev);
   };
-
-  
-  
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -46,71 +43,55 @@ const ProductFilterSidebar = ({ filters, setFilters, applyFilters }) => {
             }));
           }
         }
-        
       } catch (error) {
         console.error("Error fetching the Categories:", error);
       }
     };
 
     fetchCategories();
-  
-
   }, [categoryParam, setFilters]);
 
   const handleCategoryChange = (e) => {
-    const categoryId = e.target.value; // Get the selected category ID
-    const isChecked = e.target.checked; // Check if the checkbox is checked
-  
-    // Ensure only one checkbox is selected at a time
+    const categoryId = e.target.value;
+    const isChecked = e.target.checked;
+
     if (isChecked) {
-      // Deselect all other checkboxes
       const checkboxes = document.querySelectorAll(".form-checkbox");
       checkboxes.forEach((checkbox) => {
         if (checkbox.value !== categoryId) {
-          checkbox.checked = false; // Uncheck all other checkboxes
+          checkbox.checked = false;
         }
       });
     }
-  
-    // Update state and filters
+
     if (isChecked) {
-      setSelectedCategory(categoryId); // Set the selected category in state
-      console.log("Selected category ID:", categoryId);
-  
+      setSelectedCategory(categoryId);
       setFilters((prev) => ({
         ...prev,
-        category: [categoryId], // Update filters with the selected category
+        category: [categoryId],
       }));
     } else {
-      setSelectedCategory(null); // Clear the selected category
-      console.log("No category selected");
-  
+      setSelectedCategory(null);
       setFilters((prev) => ({
         ...prev,
-        category: [], // Clear the category filter
+        category: [],
       }));
     }
   };
-  
-  // Filter categories based on selected category logic
+
   const filteredCategories = categories.filter((category) => {
     if (!selectedCategory) {
-      // If no category is selected, show all except those already in the filters
       return !filters.category?.includes(category.id);
     } else {
-      // Show only categories with parent_id equal to the selected category
       return category.parent_id === parseInt(selectedCategory);
     }
   });
 
-
-
   const renderCategorySection = (parent) => {
     const children = groupedCategories[parent.id] || [];
-  
+
     return (
-      <div key={parent.id} className=" py-2">
-        {/* Parent Dropdown */}
+      <div key={parent.id} className="py-2">
         <div
           className="flex justify-between items-center cursor-pointer"
           onClick={() => toggleSection(parent.id)}
@@ -121,7 +102,6 @@ const ProductFilterSidebar = ({ filters, setFilters, applyFilters }) => {
               value={parent.slug}
               name={parent.name}
               className="form-checkbox text-primary"
-              
               onChange={(e) => handleCategoryChange(e, parent)}
             />
             <h3 className="text-dark sidebar-sub-option">{parent.name}</h3>
@@ -136,21 +116,18 @@ const ProductFilterSidebar = ({ filters, setFilters, applyFilters }) => {
             </>
           )}
         </div>
-  
-        {/* Children Dropdown */}
+
         {expandedSections[parent.id] && children.length > 0 && (
-          <div className=" py-2 pl-1">
+          <div className="py-2 pl-1">
             {children.map((child) => renderCategorySection(child))}
           </div>
         )}
       </div>
     );
   };
-  
-  // Group categories by parent_id
+
   const groupedCategories = categories.reduce((acc, category) => {
     const { parent_id } = category;
-    // console.log(parent_id);
     if (!acc[parent_id]) acc[parent_id] = [];
     acc[parent_id].push(category);
     return acc;
@@ -159,10 +136,6 @@ const ProductFilterSidebar = ({ filters, setFilters, applyFilters }) => {
   const handleGenderChange = (gender) => {
     setSelectedGender(gender);
   };
-
- 
-
-  
 
   const toggleSection = (section) => {
     setExpandedSections((prev) => ({
@@ -190,18 +163,17 @@ const ProductFilterSidebar = ({ filters, setFilters, applyFilters }) => {
     }));
   };
 
-  
   const renderFilterSection = (title, section, options) => (
     <div className="border-b border-gray-100 py-4">
       <div
-        className="flex justify-between items-center cursor-pointer "
+        className="flex justify-between items-center cursor-pointer"
         onClick={() => toggleSection(section)}
       >
         <h3 className="text-dark sidebar-sub-option font-medium">{title}</h3>
         {expandedSections[section] ? (
-          <FaChevronUp className="h-4 w-4 text-gray-600"  style={{ width: "10px"}}/>
+          <FaChevronUp className="h-4 w-4 text-gray-600" style={{ width: "10px" }} />
         ) : (
-          <FaChevronDown className="h-4 w-4 text-gray-600"  style={{ width: "10px"}} />
+          <FaChevronDown className="h-4 w-4 text-gray-600" style={{ width: "10px" }} />
         )}
       </div>
       {expandedSections[section] && (
@@ -237,21 +209,21 @@ const ProductFilterSidebar = ({ filters, setFilters, applyFilters }) => {
       >
         <label className="text-dark sidebar-sub-option font-medium">Price</label>
         {expandedSections.price ? (
-          <FaChevronUp className="  text-gray-600"  style={{ width: "10px"}}   />
+          <FaChevronUp className="text-gray-600" style={{ width: "10px" }} />
         ) : (
-          <FaChevronDown className="  text-gray-600"  style={{ width: "10px"}}  />
+          <FaChevronDown className="text-gray-600" style={{ width: "10px" }} />
         )}
       </div>
       {expandedSections.price && (
         <div className="dual-range-container p-3">
           <div className="slider">
-          <div
-            className="slider-range"
-            style={{
-              left: `${(filters.priceRange[0] / 10000) * 100}%`,
-              width: `${((filters.priceRange[1] - filters.priceRange[0]) / 10000) * 100}%`,
-            }}
-          ></div>
+            <div
+              className="slider-range"
+              style={{
+                left: `${(filters.priceRange[0] / 10000) * 100}%`,
+                width: `${((filters.priceRange[1] - filters.priceRange[0]) / 10000) * 100}%`,
+              }}
+            ></div>
             <input
               type="range"
               min={0}
@@ -295,6 +267,7 @@ const ProductFilterSidebar = ({ filters, setFilters, applyFilters }) => {
       )}
     </div>
   );
+
   const isAnyFilterSelected = () => {
     return (
       filters.category?.length > 0 ||
@@ -314,17 +287,20 @@ const ProductFilterSidebar = ({ filters, setFilters, applyFilters }) => {
     });
     setSelectedCategory(null);
     setSelectedGender(null);
-    handleCategoryChange();
-    handleCheckboxChange();
-    handleGenderChange();
-    handlePriceChange();
+
+    // Uncheck all checkboxes
+    const checkboxes = document.querySelectorAll(".form-checkbox");
+    checkboxes.forEach((checkbox) => {
+      checkbox.checked = false;
+    });
+    resetSorting();
   };
 
   return (
     <aside className="filters mt-3">
-      <div className="px-4 py-2 border-b flex justify-between items-center ">
-      <h2 className="text-lg font-semibold text-dark">Filter Options</h2>
-      {isAnyFilterSelected() && (
+      <div className="px-4 py-2 border-b flex justify-between items-center">
+        <h2 className="text-lg font-semibold text-dark">Filter Options</h2>
+        {isAnyFilterSelected() && (
           <FaTimesCircle
             onClick={clearFilters}
             className="cursor-pointer text-gray-600 hover:text-gray-800"
@@ -332,38 +308,29 @@ const ProductFilterSidebar = ({ filters, setFilters, applyFilters }) => {
         )}
       </div>
       <div className="px-4">
-      
-        {/* {renderFilterSection("Gender", "category", ["Mens", "Womens", "Kids"], handleGenderChange)} */}
         {renderPriceFilter()}
         <div className="border-b border-gray-100 py-4">
-        <div
-          className="flex justify-between items-center cursor-pointer"
-          onClick={() => toggleSection("subcategory")}
-        >
-          <label className="text-dark sidebar-sub-option font-medium">Category</label>
-          {expandedSections.subcategory ? (
-            <FaChevronUp className=" text-gray-600"  style={{ width: "10px"}} />
-          ) : (
-            <FaChevronDown className="  text-gray-600"  style={{ width: "10px"}}   />
+          <div
+            className="flex justify-between items-center cursor-pointer"
+            onClick={() => toggleSection("subcategory")}
+          >
+            <label className="text-dark sidebar-sub-option font-medium">Category</label>
+            {expandedSections.subcategory ? (
+              <FaChevronUp className="text-gray-600" style={{ width: "10px" }} />
+            ) : (
+              <FaChevronDown className="text-gray-600" style={{ width: "10px" }} />
+            )}
+          </div>
+          {expandedSections.subcategory && (
+            <div className="p-3">
+              {groupedCategories[0]?.map((parent) => renderCategorySection(parent))}
+            </div>
           )}
         </div>
-        {expandedSections.subcategory && (
-          <div className="p-3">
-      {groupedCategories[0]?.map((parent) => renderCategorySection(parent))}
-        </div>)}
-        </div>
-        {/* {renderCategorySection(
-          "Category",
-          "subcategory",
-          filteredCategories.map((category) => category.name)
-        )} */}
         {renderFilterSection("Size", "sizes", ["S", "M", "L", "XL", "XXL"])}
         {renderFilterSection("Rating", "rating", ["⭐ and above", "⭐⭐ and above", "⭐⭐⭐ and above", "⭐⭐⭐⭐ and above", "⭐⭐⭐⭐⭐ only"])}
       </div>
-
     </aside>
-
-    
   );
 };
 

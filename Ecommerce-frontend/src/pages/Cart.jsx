@@ -5,6 +5,8 @@ import { Link, useNavigate } from "react-router-dom";
 import empty_cart from "../assets/empty_cart_img.svg";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import toast, { Toaster } from "react-hot-toast";
+import { MdDeleteSweep } from "react-icons/md";
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -29,6 +31,8 @@ const Cart = () => {
 
     setCartItems(updatedCartItems);
 
+   
+
     try {
       // Make API call to update quantity in the database
       const response = await axios.put(
@@ -50,24 +54,50 @@ const Cart = () => {
       console.error("Error updating quantity:", error);
     }
   };
-
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await axios.get("http://192.168.137.160:8081/api/cart", {
+  const handleRemoveAll = async () => {
+    if (!window.confirm("Are you sure you want to remove all items?")) {
+      return; // If user cancels, exit early
+    }
+  
+    
+    try {
+      const response = await axios.delete(
+        "http://192.168.137.160:8081/api/clear-cart",
+        {
           headers: {
-            Authorization: `Bearer ${authToken}`,
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
-        });
-        setCartItems(response.data.data || []);
-        
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+        }
+      );
+  
+      toast.success("All items removed successfully!");
+    } catch (error) {
+      console.error("Error removing items:", error);
+      toast.error("Failed to remove items. Please try again.");
+    } finally {
+      
+      fetchProducts();
+    }
+  };
+  
+
+
+  const fetchProducts = async () => {
+    try {
+      const response = await axios.get("http://192.168.137.160:8081/api/cart", {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+      setCartItems(response.data.data || []);
+      
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
     fetchProducts();
   }, []);
 
@@ -96,6 +126,7 @@ const Cart = () => {
 
   return (
     <div className="cart-wishlist-container  container">
+      <Toaster position="top-right" reverseOrder={false} />
       <div>
         {loading ? (
          
@@ -259,6 +290,15 @@ const Cart = () => {
                       </tr>
                     ))}
                   </tbody>
+                  <button
+                    variant="danger" 
+                    onClick={handleRemoveAll} 
+                    disabled={loading} 
+                    className="flex items-center gap-2 p-3 "
+                  >
+                    {loading ? <></> : <MdDeleteSweep size={20} />}
+                    {loading ? "Removing..." : "Remove All"}
+                  </button>
                 </table>
               </div>
               <div className="w-full md:w-1/4">

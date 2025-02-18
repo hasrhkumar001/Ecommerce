@@ -112,7 +112,7 @@ const Login = () => {
             <p className="text-red-600 text-center text-sm font-medium mt-2">{message}</p>
           )}
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} autoComplete="on">
             <div className="mt-4">
               <label className="block text-gray-700 text-sm font-bold mb-2">Email Address</label>
               <input
@@ -125,7 +125,7 @@ const Login = () => {
                   setErrors({ ...errors, email: null }); // Clear email error when typing
                 }}
                 value={email}
-                required
+                
               />
               {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
             </div>
@@ -141,11 +141,19 @@ const Login = () => {
                   setErrors({ ...errors, password: null }); // Clear password error when typing
                 }}
                 value={password}
-                required
+              
               />
               {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
             </div>
-            <div className="mt-8">
+            <div className="mt-4 flex items-center w-full text-center">
+              <a href="#" className="text-xs text-gray-500 capitalize text-right w-full">
+                Forget your password?{" "}
+                <span className="text-blue-700">
+                  <Link to="/forget-password">Reset</Link>
+                </span>
+              </a>
+            </div>
+            <div className="mt-4">
               <button className="bg-blue-700 text-white font-bold py-2 px-4 w-full rounded hover:bg-blue-600">
                 Login
               </button>

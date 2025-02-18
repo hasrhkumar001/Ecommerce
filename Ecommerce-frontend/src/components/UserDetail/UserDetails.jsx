@@ -187,14 +187,14 @@ const UserDetails = () => {
     return (
       <div className="container mx-auto">
         <h1 className="text-3xl font-bold mb-6">User Management</h1>
-        <div className="bg-white p-6 rounded shadow mb-6">
+        <div className=" p-6 rounded shadow mb-6">
           <h2 className="text-xl font-semibold mb-4">Profile</h2>
           <Skeleton height={25} width="70%" />
           <Skeleton height={25} width="50%" className="mt-2" />
           <Skeleton height={25} width="60%" className="mt-2" />
         </div>
 
-        <div className="bg-white p-6 rounded shadow">
+        <div className=" p-6 rounded shadow">
           <h2 className="text-xl font-semibold mb-4">Shipping Addresses</h2>
           {[...Array(2)].map((_, index) => (
             <div key={index} className="flex justify-between items-center p-4 border-b">
@@ -214,7 +214,7 @@ const UserDetails = () => {
   return (
     <div className="container mx-auto">
       {/* User Profile */}
-      <div className="bg-white rounded-lg shadow-md mb-6 p-6">
+      <div className=" rounded-lg shadow-md mb-6 p-6">
       <Toaster
                 position="top-right"
                 toastOptions={{
@@ -225,21 +225,21 @@ const UserDetails = () => {
                   },
                 }}
               />
-        <h2 className="text-2xl font-semibold mb-4 text-gray-800">Profile</h2>
+        <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">Profile</h2>
         <div className="space-y-4">
           {/* Name & Email Row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Name Field */}
             <div className="flex flex-col">
-              <label htmlFor="name" className="text-gray-600 font-medium">Name</label>
+              <label htmlFor="name" className="text-gray-600 dark:text-gray-300 font-medium">Name</label>
               <div className="relative">
-                <FaUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <FaUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" />
                 <input
                   type="text"
                   id="name"
                   value={userDetails?.name || ""}
                   onChange={(e) => setUserDetails({ ...userDetails, name: e.target.value })}
-                  className="w-full pl-10 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full pl-10 p-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                   placeholder="Enter your name"
                 />
                 {formErrors.username && (
@@ -257,8 +257,8 @@ const UserDetails = () => {
                   type="text"
                   id="email"
                   value={userDetails?.email || ""}
-                  readOnly
-                  className="w-full pl-10 p-2 border border-gray-300 rounded-lg bg-gray-100 outline-none"
+                  onChange={(e) => setUserDetails({ ...userDetails, email: e.target.value })}
+                  className="w-full pl-10 p-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg bg-gray-100 outline-none"
                   placeholder="Email"
                 />
               </div>
@@ -275,7 +275,7 @@ const UserDetails = () => {
                 id="phone"
                 value={userDetails?.phone || ""}
                 onChange={(e) => setUserDetails({ ...userDetails, phone: e.target.value })}
-                className="w-full pl-10 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full pl-10 p-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                 placeholder="Phone number"
               />
             </div>
@@ -294,7 +294,7 @@ const UserDetails = () => {
                 id="address"
                 value={userDetails?.address || ""}
                 onChange={(e) => setUserDetails({ ...userDetails, address: e.target.value })}
-                className="w-full pl-10 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full pl-10 p-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                 placeholder="Your address"
               />
             </div>
@@ -309,7 +309,7 @@ const UserDetails = () => {
                 type="password"
                 id="password"
                 onChange={(e) => setUserDetails({ ...userDetails, password: e.target.value })}
-                className="w-full pl-10 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full pl-10 p-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                 placeholder="New password"
               />
               {formErrors.userpassword && (
@@ -329,7 +329,7 @@ const UserDetails = () => {
       </div>
 
       {/* Shipping Addresses */}
-      <div className="bg-white rounded shadow p-4">
+      <div className=" rounded shadow p-4">
         <h2 className="text-xl font-semibold mb-4">Shipping Addresses</h2>
         {addresses.length === 0 ? (
           <p className="text-gray-500">No address found.</p>

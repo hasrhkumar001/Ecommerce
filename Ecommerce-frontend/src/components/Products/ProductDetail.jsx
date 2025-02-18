@@ -13,6 +13,7 @@ import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import toast, { Toaster } from "react-hot-toast"; // Import Toaster from react-hot-toast
 import RecentlyViewedProducts from "./RecentlyViewedProducts";
+import sizeChartImg from "../../assets/size_chart.webp";
 
 export const ProductDetail = () => {
   const [product, setProduct] = useState();
@@ -24,6 +25,9 @@ export const ProductDetail = () => {
   const [averageRating, setAverageRating] = useState(0);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [sizesStock, setSizesStock] = useState({});
+  const [showSizeChart, setShowSizeChart] = useState(false); // Size chart modal state
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+
 
   const checkWishlistStatus = async () => {
     try {
@@ -132,6 +136,7 @@ export const ProductDetail = () => {
       toast.error("Please select a size before adding to the cart!");
       return;
     }
+    setIsAddingToCart(true);
     try {
       const response = await axios.post(
         "http://192.168.137.160:8081/api/cart",
@@ -152,6 +157,8 @@ export const ProductDetail = () => {
     } catch (error) {
       console.error("Error adding product to cart:", error);
       toast.error("Failed to add product to cart. Please try again.");
+    }finally{
+      setIsAddingToCart(false);
     }
   };
 
@@ -252,21 +259,53 @@ export const ProductDetail = () => {
               </div>
               <p className="item-desc">{product.description}</p>
 
-              <div>
+              <div className="flex flex-col gap-1 mt-2">
                 <p className="item-size-text">SIZE*</p>
+                <p
+                className="item-sizechart-text  cursor-pointer "
+                onClick={() => setShowSizeChart(true)}
+              >
+                View Size Chart
+              </p>
+
+              {/* SIZE CHART MODAL */}
+              {showSizeChart && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                  <div className="bg-white p-4 rounded-lg shadow-lg max-w-lg">
+                    <h3 className="text-lg font-semibold mb-2">
+                      Size Chart
+                    </h3>
+                    <img src={sizeChartImg} alt="Size Chart" className="w-full" />
+                    <button
+                      className="mt-4 bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+                      onClick={() => setShowSizeChart(false)}
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              )}
               </div>
               <div className="size-btns">
+                <div>
                 <button
                   className={`btn-size ${
                     (!sizesStock["S"] || sizesStock["S"] === 0
-                      ? "disabled-btn"
-                      : "") + (selectedSize === "S" ? " selected-size" : "")
+                    ? "disabled-btn"
+                    : "") + (selectedSize === "S" ? " selected-size" : "")
                   }`}
                   onClick={() => setSelectedSize("S")}
                   disabled={!sizesStock["S"] || sizesStock["S"] === 0}
-                >
+                  >
                   S
                 </button>
+                  {!sizesStock["S"] || sizesStock["S"] === 0 ? (
+                      <span className="out-of-stock">Out of Stock</span>
+                    ) : sizesStock["S"] < 10 ? (
+                      <span className="low-stock">Only {sizesStock["S"]} left</span>
+                    ) : null}
+                </div>
+                <div>
                 <button
                   className={`btn-size btn-middle ${
                     (!sizesStock["M"] || sizesStock["M"] === 0
@@ -278,6 +317,13 @@ export const ProductDetail = () => {
                 >
                   M
                 </button>
+                {!sizesStock["M"] || sizesStock["M"] === 0 ? (
+                      <span className="out-of-stock">Out of Stock</span>
+                    ) : sizesStock["M"] < 10 ? (
+                      <span className="low-stock">Only {sizesStock["M"]} left</span>
+                    ) : null}
+                </div>
+                <div>
                 <button
                   className={`btn-size ${
                     (!sizesStock["L"] || sizesStock["L"] === 0
@@ -289,6 +335,13 @@ export const ProductDetail = () => {
                 >
                   L
                 </button>
+                {!sizesStock["L"] || sizesStock["L"] === 0 ? (
+                      <span className="out-of-stock">Out of Stock</span>
+                    ) : sizesStock["L"] < 10 ? (
+                      <span className="low-stock">Only {sizesStock["L"]} left</span>
+                    ) : null}
+                </div>
+                <div>
                 <button
                   className={`btn-size ${
                     (!sizesStock["XL"] || sizesStock["XL"] === 0
@@ -300,6 +353,13 @@ export const ProductDetail = () => {
                 >
                   XL
                 </button>
+                {!sizesStock["XL"] || sizesStock["XL"] === 0 ? (
+                      <span className="out-of-stock">Out of Stock</span>
+                    ) : sizesStock["XL"] < 10 ? (
+                      <span className="low-stock">Only {sizesStock["XL"]} left</span>
+                    ) : null}
+                </div>
+                <div>
                 <button
                   className={`btn-size ${
                     (!sizesStock["XXL"] || sizesStock["XXL"] === 0
@@ -311,6 +371,12 @@ export const ProductDetail = () => {
                 >
                   XXL
                 </button>
+                {!sizesStock["XXL"] || sizesStock["XXL"] === 0 ? (
+                      <span className="out-of-stock">Out of Stock</span>
+                    ) : sizesStock["XXL"] < 10 ? (
+                      <span className="low-stock">Only {sizesStock["XXL"]} left</span>
+                    ) : null}
+                </div>
               </div>
               <Toaster
                 position="top-right"
@@ -355,8 +421,15 @@ export const ProductDetail = () => {
                     % OFF)
                   </span>
                 </div>
-                <button className="btn-add" onClick={addToCart}>
-                  <b>ADD TO CART</b>
+                <button className="btn-add" onClick={addToCart}disabled={isAddingToCart}  >
+                  {isAddingToCart ? (
+                    <>
+                      <div className="spinner-border spinner-border-sm" role="status"></div>
+                      Adding...
+                    </>
+                  ) : (
+                    "Add to Cart"
+                  )}
                 </button>
               </div>
             </div>

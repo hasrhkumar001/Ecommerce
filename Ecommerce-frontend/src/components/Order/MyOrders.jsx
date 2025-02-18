@@ -30,7 +30,8 @@ const MyOrders = () => {
         setOrders(response.data || []);
         console.log(response.data);
       } catch (error) {
-        setError("Error fetching order details. Please try again.");
+        setOrders( []);
+       
         console.error("Error fetching order details:", error);
       }finally{
         setIsLoading(false);
@@ -41,6 +42,7 @@ const MyOrders = () => {
   }, []);
 
   const getFilteredOrders = () => {
+    // console.log(orders);
     switch (activeTab) {
       case "Active":
         return orders.filter((order) =>
@@ -63,6 +65,35 @@ const MyOrders = () => {
 
   const closeModal = () => {
     setSelectedOrder(null);
+  };
+  const handleCancelOrder = async (order) => {
+    if (!window.confirm("Are you sure you want to cancel this order?")) return;
+  
+    try {
+      const response = await axios.post(
+        `http://192.168.137.160:8081/api/orders/cancel/${order.id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+  
+      if (response.status === 200) {
+        setOrders((prevOrders) =>
+          prevOrders.map((o) =>
+            o.id === order.id ? { ...o, status: "Cancelled" } : o
+          )
+        );
+        alert("Order cancelled successfully!");
+      } else {
+        alert("Failed to cancel order. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error cancelling order:", error);
+      alert("An error occurred while cancelling the order.");
+    }
   };
 
   return (
@@ -140,13 +171,22 @@ const MyOrders = () => {
                 <p>Zip Code: {order.shipping_detail.postal_code}</p>
                 <p>Street Address: {order.shipping_detail.address}</p>
               </div>
-
+          <div class="flex justify-end gap-3  ">
           <button
             className="view-details-btn bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
             onClick={() => handleViewDetails(order)}
           >
             View Details
           </button>
+          {order.status !=="Cancelled" && order.status !== "Delivered" ? <button
+            className="view-details-btn bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+            onClick={() => handleCancelOrder(order)}
+          >
+            Cancel
+
+          </button> : <></> }
+          
+          </div>
         </div>
       ))}
 
@@ -185,29 +225,28 @@ const MyOrders = () => {
             </div>
             <div>
               <h3 className="font-semibold mb-2">Products:</h3>
-              {selectedOrder.order_details.map((item, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-4 border-b pb-4 mb-4"
-                >
-                  <img
-                    src={`http://192.168.137.160:8081/storage/${item.product.images[0]?.image_path}`}
-                    alt={item.product.name}
-                    className="w-16 h-16 rounded-md"
-                  />
-                  <div>
-                    <p className="font-medium">
-                      {item.product.brand.name} {item.product.name}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      Qty: {item.quantity}, Size: {item.size}
-                    </p>
-                    {/* <p className="text-sm text-gray-500">
-                      Price: ${item.product.price.toFixed(2)}
-                    </p> */}
+              {selectedOrder.order_details?.length > 0 ? (
+                selectedOrder.order_details.map((item, index) => (
+                  <div key={index} className="flex items-center gap-4 border-b pb-4 mb-4">
+                    <img
+                      src={`http://192.168.137.160:8081/storage/${item.product?.images[0]?.image_path}`}
+                      alt={item.product?.name || "Product Image"}
+                      className="w-16 h-16 rounded-md"
+                    />
+                    <div>
+                      <p className="font-medium">
+                        {item.product?.brand?.name || "Unknown Brand"} {item.product?.name || "Unknown Product"}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        Qty: {item.quantity}, Size: {item.size}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-gray-500">No product details available.</p>
+              )}
+
             </div>
           </div>
         </div>

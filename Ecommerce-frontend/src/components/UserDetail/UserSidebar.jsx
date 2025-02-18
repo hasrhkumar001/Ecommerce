@@ -27,7 +27,7 @@ export const UserSidebar = ({ setSelectedPage }) => {
       }
     };
     return (
-      <div className="bg-gray-100 p-4 w-60 rounded-md">
+      <div className="bg-gray-100 dark:bg-gray-800 p-4 w-60 rounded-md">
         <h2 className="text-xl font-semibold mb-2">{userDetails?.name || 'User'}</h2>
         <p className="text-sm text-gray-600 mb-4">Welcome to your account.</p>
         <hr className="text-sm text-gray-500 mb-4"/>

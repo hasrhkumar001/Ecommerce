@@ -46,6 +46,9 @@ const ProductListing = () => {
     }
   };
   
+  const resetSorting = () => {
+    setSortOption("newest");
+  };
 
   const toggleWishlist = async (productId) => {
     try {
@@ -187,7 +190,7 @@ const ProductListing = () => {
 
   return (
     <div className="product-listing-container container">
-      <ProductFilterSidebar filters={filters} setFilters={setFilters} />
+      <ProductFilterSidebar filters={filters} setFilters={setFilters} resetSorting={resetSorting}/>
       <div>
       <div className="sorting-options my-3">
        

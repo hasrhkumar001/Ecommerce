@@ -44,7 +44,7 @@ const AccountDetails = () => {
         <UserSidebar setSelectedPage={setSelectedPage} />
   
         {/* Main Content */}
-        <div className="flex-1 bg-white rounded-md ">
+        <div className="flex-1  rounded-md ">
           {renderContent()}
         </div>
       </div>

@@ -378,6 +378,23 @@
   width: 100%;
 
 }
+.item-sizechart-text{
+  color: #383838;
+  font-size:12px;
+}
+.out-of-stock {
+  color: red;
+  font-size: 6px;
+  display: block;
+  text-align: center;
+}
+
+.low-stock {
+  color: orange;
+  font-size: 6px;
+  display: block;
+  text-align: center;
+}
 
 @media (max-width: 640px) {
   .nav-links {
