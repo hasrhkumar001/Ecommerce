@@ -1,17 +1,19 @@
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { FiTrash2 } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
+import { FaShoppingBag } from "react-icons/fa";
 
 import empty_wishlist from "../assets/empty-wishlist-image.png";
+import { AuthContext } from '../components/AuthContext';
 
 const Wishlist = () => {
-    
-  const [wishlistItems, setWishlistItems] = useState([]);
+  const { authToken, logout, login,wishlistItems,setWishlistItems,cartItems } = useContext(AuthContext);
+ 
   const [loading, setLoading] = useState(true);
-  const authToken = localStorage.getItem("authToken");
+  
   const navigate = useNavigate();
   const [stock,setStock] = useState("Out of stock")
 
@@ -27,15 +29,13 @@ const Wishlist = () => {
         const fetchWishlistProducts = async () => {
           setLoading(true);
           try {
-            const response = await axios.get("http://192.168.137.160:8081/api/wishlists",{
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('authToken')}`
-                }
-            });
             
-            const wishlistData = (response.data || []).map((item) => ({
+            
+            const wishlistData = (wishlistItems || []).map((item) => ({
               ...item,
-              stock: item.product?.variants?.length > 0 ? "In stock" : "Out of stock",
+              stock: item.product?.variants?.some((variant) => variant.stock > 0) 
+              ? "In stock" 
+              : "Out of stock",
             }));
 
             setWishlistItems(wishlistData || []);
@@ -48,8 +48,8 @@ const Wishlist = () => {
         if (hasVariants) {
           setStock("In  stock");
         }
-            console.log(response.data);
-            // console.log(wishlistItems);
+           
+           
           
           } catch (error) {
             console.error("Error fetching products:", error);
@@ -72,7 +72,8 @@ const Wishlist = () => {
             });
       
             // Call fetch function to refresh the wishlist
-            fetchWishlistProducts();
+            // fetchWishlistProducts();
+            setWishlistItems((prevItems) => prevItems.filter((item) => item.product.id !== id));
           } catch (error) {
             console.error("Error removing product:", error);
           }
@@ -160,7 +161,7 @@ const Wishlist = () => {
                       </thead>
                       <tbody>
                         {wishlistItems.map(item  => (
-                          <tr key={item.id} className="border-b hover:bg-gray-100">
+                          <tr key={item.id} className="border-b ">
                             <td className="p-2 flex items-center gap-4">
                               <Link to={`/product/${item.product.id}`}>
                                 <img
@@ -185,8 +186,18 @@ const Wishlist = () => {
                               {item.stock }
                             </td>
                             <td className="p-2 text-center">
-                              <button className="btn remove" onClick={() => handleRemove(item.product.id)}>
-                                  <FiTrash2 size={18} />
+                              <Link to={`/product/${item.product.id}`} >
+                                <button
+                              className="btn " title="Add to cart" style={{
+                                border: "1px solid red",
+                                color: "red",
+                              }} >
+                              <FaShoppingBag size={18} />
+                              </button>
+                              </Link>
+                              <button className="btn remove"  onClick={() => handleRemove(item.product.id)} title="Remove " style={{
+                                border: "1px solid red"}} >
+                                  <FiTrash2 size={18}  />
                               </button>
                             </td>
                           </tr>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import ProductFilterSidebar from "./ProductFilterSidebar";
 import { ProductCardImage } from "../Products/ProductCardImage";
@@ -8,10 +8,12 @@ import { FaHeart, FaRegHeart } from "react-icons/fa";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import toast from "react-hot-toast";
-import { Toaster } from "react-hot-toast";
+import { AuthContext } from "../AuthContext";
+
 
 
 const ProductListing = () => {
+  const { authToken, logout, login,wishlistItems,setWishlistItems,fetchWishlistProducts,cartItems } = useContext(AuthContext);
   const [products, setProducts] = useState([]);
   const {categoryParam} = useParams(); // if categoryParam is top-products then sort the products by rating
   
@@ -27,15 +29,12 @@ const ProductListing = () => {
   const [isTopProductsSelected, setIsTopProductsSelected] = useState(false); 
   const [currentPage, setCurrentPage] = useState(1);
   const [productsPerPage] = useState(12);
+  const [apiLoading, setApiLoading] = useState(false);
 
   const checkWishlistStatus = async () => {
     try {
-      const response = await axios.get(`http://192.168.137.160:8081/api/wishlists`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-      });
-      const wishlistedProducts = response.data;
+     
+      const wishlistedProducts =wishlistItems;
       const wishlistMap = wishlistedProducts.reduce((map, item) => {
         map[item.product_id] = true;
         return map;
@@ -45,6 +44,9 @@ const ProductListing = () => {
       console.error("Error checking wishlist status", error);
     }
   };
+  useEffect(()=>{
+    checkWishlistStatus();
+  },[wishlistItems]);
   
   const resetSorting = () => {
     setSortOption("newest");
@@ -63,6 +65,7 @@ const ProductListing = () => {
         return;
       }
   
+      setApiLoading(true);
       if (wishlistStatus[productId]) {
         // Remove from wishlist
         await axios.delete(`http://192.168.137.160:8081/api/wishlists/${productId}`, {
@@ -70,6 +73,9 @@ const ProductListing = () => {
             Authorization: `Bearer ${authToken}`,
           },
         });
+        setWishlistItems((prevWishlist) =>
+        prevWishlist.filter((item) => item.product_id !== productId)
+      );
         setWishlistStatus((prev) => ({ ...prev, [productId]: false }));
         toast.success("Removed from wishlist", {
           duration: 3000, // Duration in milliseconds
@@ -85,6 +91,11 @@ const ProductListing = () => {
             },
           }
         );
+        setWishlistItems((prevWishlist) => [
+          ...prevWishlist,
+          { product_id: productId },
+        ]);
+        await fetchWishlistProducts();
   
         if (response.status === 201) {
           setWishlistStatus((prev) => ({ ...prev, [productId]: true }));
@@ -106,6 +117,9 @@ const ProductListing = () => {
           duration: 3000, // Duration in milliseconds
         });
       }
+    }
+    finally{
+      setApiLoading(false);
     }
   };
  
@@ -192,6 +206,11 @@ const ProductListing = () => {
     <div className="product-listing-container container">
       <ProductFilterSidebar filters={filters} setFilters={setFilters} resetSorting={resetSorting}/>
       <div>
+      {apiLoading && (
+        <div className="loading-overlay">
+          <div className="spinner"></div>
+        </div>
+      )}
       <div className="sorting-options my-3">
        
         <select
@@ -262,16 +281,8 @@ const ProductListing = () => {
                 {/* <ProductCardImage product_id={data.id} /> */}
                 <img src={`http://192.168.137.160:8081/storage/${data.images[0]?.image_path}`} alt="Product-main-img" className="product-main-image" />
               </Link>
-              <Toaster
-                position="top-right"
-                toastOptions={{
-                  duration: 3000, // Default duration for all toasts
-                  style: {
-                    background: "#363636",
-                    color: "#fff",
-                  },
-                }}
-              />
+ 
+
               <div onClick={()=>toggleWishlist(data.id)} >
               {wishlistStatus[data.id] ? (
                   <FaHeart color="red" className="product-wishlist-icon" title="Remove from Wishlist" />
@@ -284,15 +295,15 @@ const ProductListing = () => {
               </div>
               <Link to={`/product/${data.id}`}>
               <div className="product-content p-4 ">
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <h3 className="font-semibold text-left  text-dark">{data.brand.name}</h3>
                   <div className="flex items-center px-2 py-1 rounded-full">
-                      <span className="text-gray-800 font-medium mr-1">{data.average_rating}</span>
+                      <span className="text-gray-800 dark:text-gray-200 font-medium mr-1">{Math.round((data.average_rating ?? 0) * 100) / 100}</span>
                       <FaStar className="text-yellow-400" />
                   </div>
                 </div>
-                <p className="text-left text-gray-500">
-                  {data.name} 
+                <p className="text-left text-gray-500" style={{minHeight: "48px"}}>
+                {data.name.length > 50 ? data.name.substring(0, 50) + "..." : data.name}
                   {/* from <span className="text-gray-700 font-medium">{data.category.name}</span> */}
                 </p>
                 <div className="flex justify-between items-center mt-3">

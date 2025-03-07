@@ -9,10 +9,13 @@ import { UserSidebar } from "./UserSidebar";
 
 const AccountDetails = () => {
     const {page} = useParams();
-    const [selectedPage, setSelectedPage] = useState(page || "MyAccount"); // Default page
+    const [selectedPage, setSelectedPage] = useState(page ); // Default page
     const authToken = localStorage.getItem("authToken");
     const navigate = useNavigate();
     
+    useEffect(() => {
+      setSelectedPage(page);
+  }, [page]);
   
     useEffect(() => {
       if (!authToken) {

@@ -1,5 +1,6 @@
 import React from "react";
 import Slider from "react-slick";
+import user_img from "../../assets/userplaceholder.jpg"
 
 const TestimonialData = [
   {
@@ -71,31 +72,28 @@ const Testimonials = () => {
     <div className="py-10 mb-10">
       <div className="container">
         {/* header section */}
-        <div className="text-center mb-10 max-w-[600px] mx-auto">
-          <p data-aos="fade-up" className="text-sm text-primary">
-            What our customers are saying
-          </p>
+        <div className="text-center mb-5 max-w-[600px] mx-auto">
+          
           <h1 data-aos="fade-up" className="text-3xl font-bold">
             Testimonials
           </h1>
-          <p data-aos="fade-up" className="text-xs text-gray-400">
-            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Sit
-            asperiores modi Sit asperiores modi
-          </p>
+          
         </div>
 
         {/* Testimonial cards */}
         <div data-aos="zoom-in">
           <Slider {...settings}>
             {TestimonialData.map((data) => (
-              <div className="my-6">
-                <div
+              <div className="my-3">
+               <div
                   key={data.id}
-                  className="flex flex-col gap-4 shadow-lg py-8 px-6 mx-4 rounded-xl dark:bg-gray-800 bg-primary/10 relative"
+                  className="flex flex-col gap-4 shadow-lg py-8 px-6 mx-4 rounded-xl 
+                            bg-[#f9f9f7] dark:bg-gray-800 dark:text-white relative"
                 >
+
                   <div className="mb-4">
                     <img
-                      src={data.img}
+                      src={user_img}
                       alt=""
                       className="rounded-full w-20 h-20"
                     />

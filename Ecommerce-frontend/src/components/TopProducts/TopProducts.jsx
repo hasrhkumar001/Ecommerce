@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Img1 from "../../assets/shirt/shirt.png";
 import Img2 from "../../assets/shirt/shirt2.png";
 import Img3 from "../../assets/shirt/shirt3.png";
@@ -8,9 +8,11 @@ import { Link } from "react-router-dom";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { ProductCardImage } from "../Products/ProductCardImage";
 import toast from "react-hot-toast";
-import { Toaster } from "react-hot-toast";
+
 import Skeleton from "react-loading-skeleton"; // Add this if using a library
 import "react-loading-skeleton/dist/skeleton.css"; // Skeleton styles
+import { AuthContext } from "../AuthContext";
+import Wishlist from "../../pages/Wishlist";
 
 const ProductsData = [
   {
@@ -37,11 +39,12 @@ const ProductsData = [
 ];
 
 const TopProducts = ({ handleOrderPopup }) => {
-
+  const { authToken, logout, login,wishlistItems,setWishlistItems,fetchWishlistProducts,cartItems } = useContext(AuthContext);
   const [products, setProducts] = useState([]);
   const [productImages, setProductImages] = useState({});
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [wishlistStatus, setWishlistStatus] = useState({});
+  const [apiLoading, setApiLoading] = useState(false);
 
   const [loading, setLoading] = useState(true);
   useEffect(() => {
@@ -64,12 +67,8 @@ const TopProducts = ({ handleOrderPopup }) => {
   
   const checkWishlistStatus = async () => {
     try {
-      const response = await axios.get(`http://192.168.137.160:8081/api/wishlists`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-      });
-      const wishlistedProducts = response.data;
+     
+      const wishlistedProducts =wishlistItems;
       const wishlistMap = wishlistedProducts.reduce((map, item) => {
         map[item.product_id] = true;
         return map;
@@ -79,7 +78,9 @@ const TopProducts = ({ handleOrderPopup }) => {
       console.error("Error checking wishlist status", error);
     }
   };
-  
+  useEffect(()=>{
+    checkWishlistStatus();
+  },[wishlistItems]);
 
   const toggleWishlist = async (productId) => {
     try {
@@ -93,7 +94,7 @@ const TopProducts = ({ handleOrderPopup }) => {
         });
         return;
       }
-  
+      setApiLoading(true);
       if (wishlistStatus[productId]) {
         // Remove from wishlist
         await axios.delete(`http://192.168.137.160:8081/api/wishlists/${productId}`, {
@@ -101,6 +102,10 @@ const TopProducts = ({ handleOrderPopup }) => {
             Authorization: `Bearer ${authToken}`,
           },
         });
+        setWishlistItems((prevWishlist) =>
+        prevWishlist.filter((item) => item.product_id !== productId)
+      );
+      awaitfetchWishlistProducts();
         setWishlistStatus((prev) => ({ ...prev, [productId]: false }));
         toast.success("Removed from wishlist", {
           duration: 3000, // Duration in milliseconds
@@ -116,6 +121,11 @@ const TopProducts = ({ handleOrderPopup }) => {
             },
           }
         );
+        setWishlistItems((prevWishlist) => [
+          ...prevWishlist,
+          { product_id: productId },
+        ]);
+      await  fetchWishlistProducts();
   
         if (response.status === 201) {
           setWishlistStatus((prev) => ({ ...prev, [productId]: true }));
@@ -138,12 +148,20 @@ const TopProducts = ({ handleOrderPopup }) => {
         });
       }
     }
+    finally{
+    setApiLoading(false);
+    }
   };
   
   
   return (
     <div>
       <div className="container">
+      {apiLoading && (
+        <div className="loading-overlay">
+          <div className="spinner"></div>
+        </div>
+      )}
         {/* Header section */}
         <div className="text-center mb-10 max-w-[600px] mx-auto">
           {/* <p data-aos="fade-up" className="text-sm text-primary">
@@ -182,20 +200,11 @@ const TopProducts = ({ handleOrderPopup }) => {
               className="space-y-3 border shadow-md product-container "
             >
              <div className="product-img">
-              <Link to={`/product/${data.id}`}>
+              <Link to={`/product/${data.id}`} onClick={() => window.scrollTo(0, 0)}>
                 {/* <ProductCardImage product_id={data.id} /> */}
                 <img src={`http://192.168.137.160:8081/storage/${data.images[0]?.image_path}`} alt="Product-main-img" className="product-main-image" />
               </Link>
-              <Toaster
-                position="top-right"
-                toastOptions={{
-                  duration: 3000, // Default duration for all toasts
-                  style: {
-                    background: "#363636",
-                    color: "#fff",
-                  },
-                }}
-              />
+              
               <div onClick={()=>toggleWishlist(data.id)} >
               {wishlistStatus[data.id] ? (
                   <FaHeart color="red" className="product-wishlist-icon" title="Remove from Wishlist" />
@@ -211,12 +220,12 @@ const TopProducts = ({ handleOrderPopup }) => {
                 <div className="flex justify-between">
                   <h3 className="font-semibold text-left  text-dark">{data.brand.name}</h3>
                   <div className="flex items-center px-2 py-1 rounded-full">
-                      <span className="text-gray-800 font-medium mr-1">{Math.round((data.average_rating ?? 0) * 100) / 100}</span>
+                      <span className="text-gray-800 dark:text-gray-200 font-medium mr-1">{Math.round((data.average_rating ?? 0) * 100) / 100}</span>
                       <FaStar className="text-yellow-400" />
                   </div>
                 </div>
-                <p className="text-left text-gray-500">
-                  {data.name} 
+                <p className="text-left text-gray-500" style={{minHeight: "48px"}}>
+                {data.name.length > 50 ? data.name.substring(0, 50) + "..." : data.name}
                 </p>
                 <div className="flex justify-between items-center mt-3">
                   <div className="flex items-center gap-2">
@@ -237,7 +246,7 @@ const TopProducts = ({ handleOrderPopup }) => {
           </div>
           {/* view all button */}
           <div className="flex justify-center">
-            <Link to={"/products/top-products"} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="text-center mt-10 cursor-pointer bg-primary text-white py-1 px-5 rounded-md">
+            <Link to={"/products/top-products"} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="text-center mt-10 cursor-pointer border py-1 px-5 rounded-md shadow bg-primary text-white">
               View All
             </Link>
           </div>

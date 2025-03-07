@@ -88,7 +88,7 @@ const Footer = () => {
           </div>
 
           {/* Footer Links */}
-          <div className="grid   md:grid-cols-3 col-span-2 md:pl-10">
+          <div className="grid   md:grid-cols-2 col-span-2 md:pl-10">
             <div>
               <div className="py-8 px-4">
                 <h1 className="sm:text-xl text-xl font-bold sm:text-left text-justify mb-3">
@@ -112,19 +112,11 @@ const Footer = () => {
 
             {/* social links */}
 
-            <div>
-              <div className="flex items-center gap-3 mt-6">
-                <Link to="https://www.instagram.com">
-                  <FaInstagram className="text-3xl" />
-                </Link>
-                <Link to="https://www.facebook.com">
-                  <FaFacebook className="text-3xl" />
-                </Link>
-                <Link to="https://www.linkedin.com">
-                  <FaLinkedin className="text-3xl" />
-                </Link>
-              </div>
-              <div className="mt-6">
+            <div className="py-8 px-4">
+              <div >
+            <h1 className="sm:text-xl text-xl font-bold sm:text-left text-justify mb-3">
+                  Contact Us
+                </h1>
                 <div className="flex items-center gap-3">
                   <FaLocationArrow />
                   <p>Chandigarh, India</p>
@@ -135,6 +127,17 @@ const Footer = () => {
                   <p>+91 1234567890</p>
                   </Link>
                 </div>
+              </div>
+              <div className="flex items-center gap-3 mt-6">
+                <Link to="https://www.instagram.com">
+                  <FaInstagram className="" />
+                </Link>
+                <Link to="https://www.facebook.com">
+                  <FaFacebook className="" />
+                </Link>
+                <Link to="https://www.linkedin.com">
+                  <FaLinkedin className="" />
+                </Link>
               </div>
             </div>
           </div>

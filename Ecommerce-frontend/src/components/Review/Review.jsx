@@ -29,12 +29,43 @@ const fetchReviews = async () => {
     console.error('Error fetching reviews:', error);
   }
 };
+const validateFields = () => {
+  const errors = {};
+
+  if (!rating) {
+    errors.rating = 'Rating is required';
+  }
+  if (!review) {
+    errors.review = 'Review is required';
+  }
+  if (!reviewHeading) {
+    errors.reviewHeading = 'Review Heading is required';
+  }  
+  if (rating) {
+    errors.rating = '';
+  }
+  if (review) {
+    errors.review = '';
+  }
+  if (reviewHeading) {
+    errors.reviewHeading = '';
+  }
+
+  return errors;
+};
 
 const handleSubmit = async (e) => {
   e.preventDefault();
   console.log("Results: rating:"+rating+ " review:"  +review+" heading:" +reviewHeading);
 
-  
+  // Validate fields and collect all errors
+  const validationErrors = validateFields();
+
+  // If there are any validation errors, set them and return
+  if (Object.keys(validationErrors).length > 0) {
+    setErrors(validationErrors);
+    
+  }
 
   try {
     const response = await axios.post(
@@ -48,18 +79,21 @@ const handleSubmit = async (e) => {
     );
     if (response.status === 200){
     console.log("Successfully submitted you review.")
-  }else if(response.status === 403){
-    setErrors({reviewExist:'You have already reviewed this product'});
-  }else{
-    setErrors({reviewFetch:'Login Again, Token Expired'});
   }
 
     setRating('');
     setReview('');
     setReviewHeading('');
+    validateFields();
     fetchReviews(); // Refresh the reviews after submission
   } catch (error) {
     console.error('Error submitting review:', error);
+    if (error.response && error.response.status === 403) {
+      setErrors({ reviewExist: 'You have already reviewed this product' });
+      console.log("test");
+    } else {
+      setErrors({ reviewFetch: 'An error occurred while submitting your review.' });
+    }
   }
 };
 
@@ -133,35 +167,37 @@ return (
               }}>Write a Review</h4>
           <div className='d-flex justify-content-center flex-column'>
           
+          {errors.reviewFetch && <p className=" text-red-500">{errors.reviewFetch}</p>}
+          {errors.reviewExist && <p className=" text-red-500">{errors.reviewExist}</p>}
+          {errors.rating && <p className=" text-red-500">{errors.rating}</p>}
           <StarRating rating={rating} setRating={setRating} />
-          {errors.reviewFetch && <p className="fs-5 text-danger">{errors.reviewFetch}</p>}
-          {errors.reviewExist && <p className="fs-5 text-danger">{errors.reviewExist}</p>}
-          {errors.rating && <p className="fs-5 text-danger">{errors.rating}</p>}
         </div>
           
         
         <div className='d-flex justify-content-center flex-column'>
-          
+        {errors.reviewHeading && <p className=" text-red-500">{errors.reviewHeading}</p>}
           <textarea
             value={reviewHeading}
             placeholder="Title"
             width="500px"
             style={{padding:"10px", marginBottom:"5px",width:"100%" ,fontSize:"14px" ,border: "1px solid #dfdfdf"}}
+            className='dark:bg-gray-800 dark:text-white '
             onChange={(e) => setReviewHeading(e.target.value)}
           ></textarea>
-          {errors.reviewHeading && <p className="fs-5 text-danger">{errors.reviewHeading}</p>}
+         
         </div>
 
         <div className='d-flex justify-content-center flex-column'>
-          
+        {errors.review && <p className=" text-red-500">{errors.review}</p>}
           <textarea
             value={review}
             width="500px"
             style={{minHeight:"100px",padding:"10px",fontSize:"14px",width:"100%", marginBottom:"5px",border: "1px solid #dfdfdf" }}
             placeholder='Share details of your own experience'
+            className='dark:bg-gray-800 dark:text-white '
             onChange={(e) => setReview(e.target.value)}
           ></textarea>
-          {errors.review && <p className="fs-5 text-danger">{errors.review}</p>}
+          
         </div>
 
         <button style={{backgroundColor: "#ff4d30" ,border:"none" ,color:"white",fontWeight:"700",padding:"5px 10px"}}

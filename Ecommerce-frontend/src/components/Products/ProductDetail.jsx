@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import Img1 from "../../assets/women/women.png";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { ProductImages } from "./ProductImages";
 import { AiFillStar } from "react-icons/ai";
@@ -11,11 +11,13 @@ import Review from "../Review/Review";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import toast, { Toaster } from "react-hot-toast"; // Import Toaster from react-hot-toast
+import toast from "react-hot-toast"; // Import Toaster from react-hot-toast
 import RecentlyViewedProducts from "./RecentlyViewedProducts";
 import sizeChartImg from "../../assets/size_chart.webp";
+import { AuthContext } from "../AuthContext";
 
 export const ProductDetail = () => {
+  const { authToken, wishlistItems,setWishlistItems,fetchCartItems,cartItems,setCartItems } = useContext(AuthContext);
   const [product, setProduct] = useState();
   const [productLoading, setProductLoading] = useState(true);
   const { id } = useParams();
@@ -27,16 +29,64 @@ export const ProductDetail = () => {
   const [sizesStock, setSizesStock] = useState({});
   const [showSizeChart, setShowSizeChart] = useState(false); // Size chart modal state
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const navigate = useNavigate();
+  const [apiLoading, setApiLoading] = useState(false);
 
+  const addToCheckout = async () => {
+    if (!authToken) {
+      toast.error("Please log in to proceed to checkout");
+      return;
+    }
+  
+    if (!selectedSize) {
+      toast.error("Please select a size before proceeding to checkout!");
+      return;
+    }
+    try {
+      // Add item to cart
+      const response = await axios.post(
+        "http://192.168.137.160:8081/api/cart",
+        {
+          product_id: product.id,
+          quantity: quantity,
+          size: selectedSize,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        }
+      );
+  
+      console.log(response.data);
+    const newCartItem = {
+      id: response.data.data.id,
+      product: {
+        id: product.id,
+        name: product.name,
+        discounted_price: product.discounted_price,
+       
+      },
+      size: selectedSize,
+      quantity: quantity,
+      
+    };
+  
+    // Pass cartItems to the checkout page
+    navigate("/checkout", { state: { cartItems: [newCartItem] } });
+  } catch (error) {
+    console.error("Error adding product to cart:", error);
+    toast.error("Failed to proceed to checkout. Please try again.");
+  } finally {
+    setIsAddingToCart(false);
+  }
+  };
+  
 
   const checkWishlistStatus = async () => {
     try {
-      const response = await axios.get(`http://192.168.137.160:8081/api/wishlists`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-      });
-      const wishlistedProducts = response.data;
+      
+      const wishlistedProducts = wishlistItems;
 
       const isProductInWishlist = wishlistedProducts.some(
         (item) => item.product_id === product.id
@@ -51,6 +101,7 @@ export const ProductDetail = () => {
 
   const toggleWishlist = async () => {
     try {
+      setApiLoading(true);
       if (isWishlisted) {
         // If the product is already wishlisted, remove it
         await axios.delete(
@@ -61,6 +112,9 @@ export const ProductDetail = () => {
             },
           }
         );
+        setWishlistItems((prevWishlist) =>
+        prevWishlist.filter((item) => item.product_id !== product.id)
+      );
         setIsWishlisted(false);
         toast.success("Removed from wishlist");
       } else {
@@ -76,6 +130,11 @@ export const ProductDetail = () => {
             },
           }
         );
+       
+      setWishlistItems((prevWishlist) => [
+        ...prevWishlist,
+        { product_id: product.id },
+      ]);
         setIsWishlisted(true);
         toast.success("Added to wishlist");
       }
@@ -87,6 +146,9 @@ export const ProductDetail = () => {
         console.error("Error updating wishlist", error);
         toast.error("An error occurred while updating your wishlist. Please try again.");
       }
+    }
+    finally{
+      setApiLoading(false);
     }
   };
 
@@ -151,13 +213,47 @@ export const ProductDetail = () => {
           },
         }
       );
-
+      setCartItems((prevCartItems) => {
+        const existingItemIndex = prevCartItems.findIndex(
+          (item) => item.id === product.id && item.size === selectedSize
+        );
+        
+      
+        if (existingItemIndex !== -1) {
+          // If the product already exists, update the quantity
+        
+          return prevCartItems.map((item, index) =>
+            index === existingItemIndex
+              ? { ...item, quantity: item.quantity + quantity }
+              : item
+          );
+        } else {
+          // If the product is new, add it to the cart
+          
+          return [
+            ...prevCartItems,
+            {
+              id: product.id,
+              name: product.name,
+              image: product.images[0], // Assuming first image
+              price: product.price,
+              size: selectedSize,
+              quantity: quantity,
+            },
+          ];
+        }
+      
+      });
+      await fetchCartItems();
+     
       // Add to cart logic here
       toast.success(`Product added to cart successfully!`);
     } catch (error) {
       console.error("Error adding product to cart:", error);
+      await fetchCartItems();
       toast.error("Failed to add product to cart. Please try again.");
     }finally{
+      
       setIsAddingToCart(false);
     }
   };
@@ -210,6 +306,11 @@ export const ProductDetail = () => {
 
   return (
     <div className="container mt-20">
+      {apiLoading && (
+        <div className="loading-overlay">
+          <div className="spinner"></div>
+        </div>
+      )}
       <div className="card product-detail-container md:grid-cols-2">
         {!productLoading ? (
           <>
@@ -270,42 +371,48 @@ export const ProductDetail = () => {
 
               {/* SIZE CHART MODAL */}
               {showSizeChart && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                  <div className="bg-white p-4 rounded-lg shadow-lg max-w-lg">
-                    <h3 className="text-lg font-semibold mb-2">
-                      Size Chart
-                    </h3>
-                    <img src={sizeChartImg} alt="Size Chart" className="w-full" />
-                    <button
-                      className="mt-4 bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
-                      onClick={() => setShowSizeChart(false)}
-                    >
-                      Close
-                    </button>
-                  </div>
-                </div>
-              )}
+  <div 
+    className="fixed inset-0 bg-black bg-opacity-50 flex z-50 justify-center items-center"
+    onClick={() => setShowSizeChart(false)} // Close modal when clicking outside
+  >
+    <div 
+      className="bg-white p-4 rounded-lg shadow-lg max-w-lg"
+      onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
+    >
+      <h3 className="text-lg font-semibold mb-2">Size Chart</h3>
+      <img src={sizeChartImg} alt="Size Chart" className="w-full" />
+      <button
+        className="mt-4 bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+        onClick={() => setShowSizeChart(false)}
+      >
+        Close
+      </button>
+    </div>
+  </div>
+)}
+
+
               </div>
               <div className="size-btns">
-                <div>
-                <button
-                  className={`btn-size ${
-                    (!sizesStock["S"] || sizesStock["S"] === 0
-                    ? "disabled-btn"
-                    : "") + (selectedSize === "S" ? " selected-size" : "")
-                  }`}
-                  onClick={() => setSelectedSize("S")}
-                  disabled={!sizesStock["S"] || sizesStock["S"] === 0}
-                  >
-                  S
-                </button>
-                  {!sizesStock["S"] || sizesStock["S"] === 0 ? (
-                      <span className="out-of-stock">Out of Stock</span>
-                    ) : sizesStock["S"] < 10 ? (
-                      <span className="low-stock">Only {sizesStock["S"]} left</span>
-                    ) : null}
-                </div>
-                <div>
+                <div className="flex flex-col ">
+                  <button
+                    className={`btn-size ${
+                      (!sizesStock["S"] || sizesStock["S"] === 0
+                      ? "disabled-btn"
+                      : "") + (selectedSize === "S" ? " selected-size" : "")
+                    }`}
+                    onClick={() => setSelectedSize("S")}
+                    disabled={!sizesStock["S"] || sizesStock["S"] === 0}
+                    >
+                    S
+                  </button>
+                    {!sizesStock["S"] || sizesStock["S"] === 0 ? (
+                        <span className="out-of-stock">Out of Stock</span>
+                      ) : sizesStock["S"] < 10 ? (
+                        <span className="low-stock">Only {sizesStock["S"]} left</span>
+                      ) : null}
+                  </div>
+                <div className="flex flex-col " >
                 <button
                   className={`btn-size btn-middle ${
                     (!sizesStock["M"] || sizesStock["M"] === 0
@@ -323,7 +430,7 @@ export const ProductDetail = () => {
                       <span className="low-stock">Only {sizesStock["M"]} left</span>
                     ) : null}
                 </div>
-                <div>
+                <div className="flex flex-col ">
                 <button
                   className={`btn-size ${
                     (!sizesStock["L"] || sizesStock["L"] === 0
@@ -341,7 +448,7 @@ export const ProductDetail = () => {
                       <span className="low-stock">Only {sizesStock["L"]} left</span>
                     ) : null}
                 </div>
-                <div>
+                <div className="flex flex-col ">
                 <button
                   className={`btn-size ${
                     (!sizesStock["XL"] || sizesStock["XL"] === 0
@@ -359,7 +466,7 @@ export const ProductDetail = () => {
                       <span className="low-stock">Only {sizesStock["XL"]} left</span>
                     ) : null}
                 </div>
-                <div>
+                <div className="flex flex-col justify-center">
                 <button
                   className={`btn-size ${
                     (!sizesStock["XXL"] || sizesStock["XXL"] === 0
@@ -378,16 +485,7 @@ export const ProductDetail = () => {
                     ) : null}
                 </div>
               </div>
-              <Toaster
-                position="top-right"
-                toastOptions={{
-                  duration: 3000, // Default duration for all toasts
-                  style: {
-                    background: "#363636",
-                    color: "#fff",
-                  },
-                }}
-              />
+              
 
               <div className="pt-2">
                 <p className="item-size-text">QUANTITY</p>
@@ -430,6 +528,9 @@ export const ProductDetail = () => {
                   ) : (
                     "Add to Cart"
                   )}
+                </button>
+                <button className="btn-add" onClick={addToCheckout}   >
+                      Buy Now
                 </button>
               </div>
             </div>
@@ -510,11 +611,12 @@ export const ProductDetail = () => {
             </div>
           </>
         )}
+      </div>
          <div className="review-container">
               <Review productId={id} />
             </div>
-      </div>
-            <RecentlyViewedProducts />
+      {authToken ?<RecentlyViewedProducts />:<></>}
+            
     </div>
   );
 };

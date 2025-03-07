@@ -1,19 +1,24 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { FiTrash2 } from "react-icons/fi";
+import { TbHeartPlus } from "react-icons/tb";
+
 import { Link, useNavigate } from "react-router-dom";
 import empty_cart from "../assets/empty_cart_img.svg";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import toast, { Toaster } from "react-hot-toast";
 import { MdDeleteSweep } from "react-icons/md";
+import { FaHeart } from "react-icons/fa";
+import { AuthContext } from "../components/AuthContext";
 
 const Cart = () => {
-  const [cartItems, setCartItems] = useState([]);
+  const { authToken, setCartItems,cartItems,fetchCartItems,fetchWishlistProducts } = useContext(AuthContext);
+  
   const [loading, setLoading] = useState(true);
-  const authToken = localStorage.getItem("authToken");
   const navigate = useNavigate();
   const [pendingUpdates, setPendingUpdates] = useState({});
+  
 
   useEffect(() => {
     if (!authToken) {
@@ -69,7 +74,8 @@ const Cart = () => {
           },
         }
       );
-  
+      setCartItems([]);
+      fetchCartItems();
       toast.success("All items removed successfully!");
     } catch (error) {
       console.error("Error removing items:", error);
@@ -83,13 +89,10 @@ const Cart = () => {
 
 
   const fetchProducts = async () => {
+    setLoading(true);  
     try {
-      const response = await axios.get("http://192.168.137.160:8081/api/cart", {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-      setCartItems(response.data.data || []);
+     
+      fetchCartItems();
       
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -100,6 +103,25 @@ const Cart = () => {
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  const wishlistItem = async (productId,id) => {
+    try {
+      const response = await axios.post(
+    `http://192.168.137.160:8081/api/wishlists`,
+    {
+      product_id: productId,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+      },
+    }
+  );
+  deleteItem(id);
+}
+  catch (error) {
+    console.error("Error wishlisting item:", error);
+  }};
 
   const deleteItem = async (id) => {
     try {
@@ -114,6 +136,8 @@ const Cart = () => {
       }
     } catch (error) {
       console.error("Error deleting item:", error);
+    }finally{
+      await fetchWishlistProducts();
     }
   };
 
@@ -126,7 +150,7 @@ const Cart = () => {
 
   return (
     <div className="cart-wishlist-container  container">
-      <Toaster position="top-right" reverseOrder={false} />
+      
       <div>
         {loading ? (
          
@@ -225,11 +249,11 @@ const Cart = () => {
         ) : cartItems.length > 0 ? (
           <div className="">
             <h2 className="cart-heading mb-4">Your Cart</h2>
-            <div className="flex flex-col items-start md:flex-row gap-8">
+            <div className="flex flex-col items-start md:flex-row gap-8 ">
               <div className="w-full md:w-3/4">
-                <table className="w-full border-collapse shadow">
-                  <thead>
-                    <tr className="bg-gray-800 text-white">
+                <table className="w-full border-collapse shadow rounded-lg ">
+                  <thead className="">
+                    <tr className=" border-b ">
                       <th className="p-2 text-left">Product Details</th>
                       <th className="p-2">Price</th>
                       <th className="p-2">Quantity</th>
@@ -239,7 +263,7 @@ const Cart = () => {
                   </thead>
                   <tbody>
                     {cartItems.map((item) => (
-                      <tr key={item.id} className="border-b hover:bg-gray-100">
+                      <tr key={item.id} className="border-b">
                         <td className="p-2 flex items-center gap-4">
                           <Link to={`/product/${item.product.id}`}>
                             <img
@@ -281,10 +305,17 @@ const Cart = () => {
                         </td>
                         <td className="p-2 text-center">
                           <button
-                            onClick={() => deleteItem(item.id)}
-                            className="text-red-500 hover:text-red-700"
+                            onClick={() => wishlistItem(item.product.id, item.id)}
+                            className="text-red-500 hover:text-red-700 mr-2"
                           >
-                            <FiTrash2 size={18} />
+                            <TbHeartPlus  size={18} title="Move to wishlist"/>
+                            
+                          </button>
+                          <button
+                            onClick={() => deleteItem(item.id)}
+                            className="text-red-500 hover:text-red-700 "
+                          >
+                            <FiTrash2 size={18} title="Remove from cart" />
                           </button>
                         </td>
                       </tr>
@@ -302,8 +333,8 @@ const Cart = () => {
                 </table>
               </div>
               <div className="w-full md:w-1/4">
-                <div className=" p-4 bg-gray-100 rounded-lg">
-                  <h2 className="font-bold text-lg mb-3 text-center">Cart Summary</h2>
+                <div className=" p-2 bg-gray-100 dark:bg-gray-800 dark:text-white rounded-lg">
+                  <h2 className="font-bold mb-2 text-center">Cart Summary</h2>
                   <hr></hr>
                   <p className="flex justify-between my-2">
                     <span>Sub Total</span>

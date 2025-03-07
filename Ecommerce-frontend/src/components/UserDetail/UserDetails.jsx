@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FiEdit, FiTrash, FiSave, FiPlus } from "react-icons/fi";
 import { FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaLock } from "react-icons/fa";
+import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css"; // Import skeleton styles
@@ -28,6 +29,7 @@ const UserDetails = () => {
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [formErrors, setFormErrors] = useState({});
   const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(false);
   const authToken = localStorage.getItem("authToken");
 
   useEffect(() => {
@@ -153,7 +155,7 @@ const UserDetails = () => {
   // Validate Phone
   if (!userDetails?.phone.trim()) {
     errors.userphone = "Phone number is required.";
-  } else if (!/^\+?[1-9][0-9]{7,14}$/.test(userDetails.phone)) {
+  } else if (!/^\+?[1-9][0-9]{9,14}$/.test(userDetails.phone)) {
     errors.userphone = "Invalid phone number. Must be 10 digits.";
   }
 
@@ -214,19 +216,66 @@ const UserDetails = () => {
   return (
     <div className="container mx-auto">
       {/* User Profile */}
-      <div className=" rounded-lg shadow-md mb-6 p-6">
-      <Toaster
-                position="top-right"
-                toastOptions={{
-                  duration: 3000, // Default duration for all toasts
-                  style: {
-                    background: "#363636",
-                    color: "#fff",
-                  },
-                }}
-              />
-        <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">Profile</h2>
-        <div className="space-y-4">
+      <div className="rounded-lg  p-6 bg-white dark:bg-gray-800">
+            {/* Title */}
+            <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">
+                Profile
+            </h2>
+            <div className="flex justify-between items-end">
+            
+            <div className="space-y-4">
+                    {/* Name */}
+                    <div className="flex items-center space-x-3">
+                        <FaUser className="text-gray-600 dark:text-gray-300" />
+                        <span className="text-gray-800 dark:text-white">
+                             {userDetails?.name}
+                        </span>
+                    </div>
+
+                    {/* Email */}
+                    <div className="flex items-center space-x-3">
+                        <FaEnvelope className="text-gray-600 dark:text-gray-300" />
+                        <span className="text-gray-800 dark:text-white">
+                            {userDetails?.email}
+                        </span>
+                    </div>
+
+                    {/* Phone */}
+                    <div className="flex items-center space-x-3">
+                        <FaPhone className="text-gray-600 dark:text-gray-300" />
+                        <span className="text-gray-800 dark:text-white">
+                            {userDetails?.phone}
+                        </span>
+                    </div>
+
+                    {/* Address */}
+                    {/* <div className="flex items-center space-x-3">
+                        <FaMapMarkerAlt className="text-gray-600 dark:text-gray-300" />
+                        <span className="text-gray-800 dark:text-white">
+                            <strong>Address:</strong> {userDetails?.address}
+                        </span>
+                    </div> */}
+                </div>
+                <button
+                onClick={() => setIsOpen(!isOpen)}
+                className=" border py-2 bg-blue-500 text-white rounded-lg flex justify-between items-end text-lg font-semibold   transition-all px-4"
+            >
+                <span>Update Profile</span>
+                
+            </button>
+                
+            </div>
+
+            {/* Accordion Button */}
+            
+
+            {/* Collapsible Section */}
+            <div
+                className={`transition-all duration-300 rounded-lg shadow-md    ${
+                    isOpen ? "max-h-96 opacity-100 mt-4" : "max-h-0 opacity-0 overflow-hidden"
+                }`}
+            >
+              <div className="space-y-4">
           {/* Name & Email Row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Name Field */}
@@ -323,10 +372,14 @@ const UserDetails = () => {
             onClick={handleUpdateUserProfile}
             className="w-full bg-blue-600 text-white py-2 rounded-lg flex justify-center items-center text-lg font-semibold hover:bg-blue-700 transition-all"
           >
-            <FiSave className="mr-2" /> Update Profile
+            <FiSave className="mr-2" /> Save Profile
           </button>
         </div>
-      </div>
+                
+            </div>
+        </div>
+        <hr className="mb-5"></hr>
+     
 
       {/* Shipping Addresses */}
       <div className=" rounded shadow p-4">
@@ -374,7 +427,7 @@ const UserDetails = () => {
                 <input
                   type="text"
                   placeholder="First Name"
-                  className="w-full p-3 border rounded"
+                  className="w-full p-3 border rounded dark:bg-gray-800 dark:text-white "
                   value={newAddress.firstName}
                   onChange={(e) =>
                     setNewAddress({ ...newAddress, firstName: e.target.value })
@@ -388,7 +441,7 @@ const UserDetails = () => {
                 <input
                   type="text"
                   placeholder="Last Name"
-                  className="w-full p-3 border rounded"
+                  className="w-full p-3 border rounded dark:border-gray-700 dark:bg-gray-800 dark:text-white "
                   value={newAddress.lastName}
                   onChange={(e) =>
                     setNewAddress({ ...newAddress, lastName: e.target.value })
@@ -403,7 +456,7 @@ const UserDetails = () => {
               <input
                 type="text"
                 placeholder="Company Name (optional)"
-                className="w-full p-3 border rounded my-2"
+                className="w-full p-3 border rounded my-2 dark:border-gray-700 dark:bg-gray-800 dark:text-white "
                 value={newAddress.companyName}
                 onChange={(e) =>
                   setNewAddress({ ...newAddress, companyName: e.target.value })
@@ -414,7 +467,7 @@ const UserDetails = () => {
               <input
                 type="text"
                 placeholder="Country"
-                className="w-full p-3 border rounded my-2"
+                className="w-full p-3 border rounded my-2 dark:border-gray-700 dark:bg-gray-800 dark:text-white "
                 value={newAddress.countryName}
                 onChange={(e) =>
                   setNewAddress({ ...newAddress, countryName: e.target.value })
@@ -428,7 +481,7 @@ const UserDetails = () => {
               <input
                 type="text"
                 placeholder="House No"
-                className="w-full p-3 border rounded my-2"
+                className="w-full p-3 border rounded my-2 dark:border-gray-700 dark:bg-gray-800 dark:text-white "
                 value={newAddress.houseNo}
                 onChange={(e) =>
                   setNewAddress({ ...newAddress, houseNo: e.target.value })
@@ -442,7 +495,7 @@ const UserDetails = () => {
               <input
                 type="text"
                 placeholder="Address"
-                className="w-full p-3 border rounded my-2"
+                className="w-full p-3 border rounded my-2 dark:border-gray-700 dark:bg-gray-800 dark:text-white "
                 value={newAddress.address}
                 onChange={(e) =>
                   setNewAddress({ ...newAddress, address: e.target.value })
@@ -457,21 +510,21 @@ const UserDetails = () => {
                 <input
                   type="text"
                   placeholder="City"
-                  className="w-full p-3 border rounded"
+                  className="w-full p-3 border rounded dark:border-gray-700 dark:bg-gray-800 dark:text-white "
                   value={newAddress.city}
                   onChange={(e) =>
                     setNewAddress({ ...newAddress, city: e.target.value })
                   }
                 />
                 {formErrors.city && (
-                  <p className="text-red-500 text-sm">{formErrors.city}</p>
+                  <p className="text-red-500 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white ">{formErrors.city}</p>
                 )}
               </div>
               <div>
                 <input
                   type="text"
                   placeholder="State"
-                  className="w-full p-3 border rounded"
+                  className="w-full p-3 border rounded dark:border-gray-700 dark:bg-gray-800 dark:text-white "
                   value={newAddress.state}
                   onChange={(e) =>
                     setNewAddress({ ...newAddress, state: e.target.value })
@@ -485,7 +538,7 @@ const UserDetails = () => {
                 <input
                   type="text"
                   placeholder="Postal Code"
-                  className="w-full p-3 border rounded"
+                  className="w-full p-3 border rounded dark:border-gray-700 dark:bg-gray-800 dark:text-white "
                   value={newAddress.postal_code}
                   onChange={(e) =>
                     setNewAddress({ ...newAddress, postal_code: e.target.value })
@@ -500,7 +553,7 @@ const UserDetails = () => {
               <input
                 type="text"
                 placeholder="Phone"
-                className="w-full p-3 border rounded my-2"
+                className="w-full p-3 border rounded my-2 dark:border-gray-700 dark:bg-gray-800 dark:text-white "
                 value={newAddress.phone}
                 onChange={(e) =>
                   setNewAddress({ ...newAddress, phone: e.target.value })
