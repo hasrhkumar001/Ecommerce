@@ -65,7 +65,16 @@ const ContactUs = () => {
   return (
     <main className="container py-12">
       <div className="mx-auto px-6">
-        
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 3000,
+            style: {
+              background: "var(--toast-bg, #363636)",
+              color: "var(--toast-color, #fff)",
+            },
+          }}
+        />
 
         {/* Hero Section */}
         <section className="text-center mb-12">

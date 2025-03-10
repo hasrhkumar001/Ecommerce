@@ -25,7 +25,9 @@ class UserList extends Component
     // Filtering logic
     public function filterUsers()
     {
-        $this->all_users = User::where('name', 'like', '%' . $this->search . '%')->get();
+        $this->all_users = User::where('name', 'like', '%' . $this->search . '%')
+                            ->orWhere('email', 'like', '%' . $this->search . '%')
+                            ->get();
     }
 
     // Delete a user

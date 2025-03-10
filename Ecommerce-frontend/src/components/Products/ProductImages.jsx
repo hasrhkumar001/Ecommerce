@@ -88,8 +88,8 @@ export const ProductImages = ({ images = [] }) => {
 
         {/* Next Button */}
         {currentSlide < totalSlides - 1 && (
-          <button className="thumbnail-nav next " onClick={handleNext}>
-            &lt;
+          <button className="thumbnail-nav next" onClick={handleNext}>
+            &gt;
           </button>
         )}
       </div>

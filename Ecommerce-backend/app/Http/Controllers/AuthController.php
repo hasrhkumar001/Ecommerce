@@ -17,6 +17,11 @@ class AuthController extends Controller
             'email' => 'required|email',
             'password' => 'required',
         ]);
+        
+        $useremail = User::where('email', $request->email)->first();
+        if (!$useremail) {
+            return response()->json(['message' => 'User with this email does not exist'], 404);
+        }
 
         if (!Auth::attempt($credentials)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
@@ -56,10 +61,12 @@ class AuthController extends Controller
             'phone' => $validatedData['phoneNo'],
             'password' => bcrypt($validatedData['password'])
         ]);
+      
+        $token = $user->createToken('API Token')->plainTextToken;
     
         return response()->json([
-            'message' => 'User successfully registered.'
-            
+            'message' => 'User successfully registered.',
+            'token' => $token,
         ]);
     
     }

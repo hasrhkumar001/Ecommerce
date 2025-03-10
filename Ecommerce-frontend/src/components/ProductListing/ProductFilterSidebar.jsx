@@ -164,7 +164,7 @@ const ProductFilterSidebar = ({ filters, setFilters, applyFilters,resetSorting }
   };
 
   const renderFilterSection = (title, section, options) => (
-    <div className=" border-gray-100 py-4">
+    <div className="border-b border-gray-100 py-4">
       <div
         className="flex justify-between items-center cursor-pointer"
         onClick={() => toggleSection(section)}
@@ -297,7 +297,7 @@ const ProductFilterSidebar = ({ filters, setFilters, applyFilters,resetSorting }
   };
 
   return (
-    <aside className="filters ">
+    <aside className="filters mt-3">
       <div className="px-4 py-2 border-b flex justify-between items-center">
         <h2 className="text-lg font-semibold text-dark">Filter Options</h2>
         {isAnyFilterSelected() && (
@@ -308,7 +308,7 @@ const ProductFilterSidebar = ({ filters, setFilters, applyFilters,resetSorting }
         )}
       </div>
       <div className="px-4">
-        
+        {renderPriceFilter()}
         <div className="border-b border-gray-100 py-4">
           <div
             className="flex justify-between items-center cursor-pointer"
@@ -327,7 +327,6 @@ const ProductFilterSidebar = ({ filters, setFilters, applyFilters,resetSorting }
             </div>
           )}
         </div>
-        {renderPriceFilter()}
         {renderFilterSection("Size", "sizes", ["S", "M", "L", "XL", "XXL"])}
         {renderFilterSection("Rating", "rating", ["⭐ and above", "⭐⭐ and above", "⭐⭐⭐ and above", "⭐⭐⭐⭐ and above", "⭐⭐⭐⭐⭐ only"])}
       </div>

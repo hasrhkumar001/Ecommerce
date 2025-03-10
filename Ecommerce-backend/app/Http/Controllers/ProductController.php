@@ -27,7 +27,7 @@ class ProductController extends Controller
     }
 
     // Get all products
-    public function index(Request $request)
+     public function index(Request $request)
     {
         $query = Product::query();
 
@@ -82,6 +82,10 @@ class ProductController extends Controller
         // Exclude products with all variants having 0 quantity
         $query->whereHas('variants', function ($variantQuery) {
             $variantQuery->where('stock', '>', 0);
+        });
+
+        $query->whereHas('brand', function ($brandQuery) {
+            $brandQuery->where('status', 'Active');
         });
 
         $sortOrder = $request->input('sort_order', 'asc'); // Default to 'asc' if no sort_order is provided
@@ -189,70 +193,69 @@ class ProductController extends Controller
         return response()->json(['message' => 'Product Deleted Successfully'], 200);
     }
     public function search(Request $request)
-    {
-        $query = $request->input('query');
-        $priceLimit = null;
-        $brandName = null;
-        $categoryName = null;
-        $keywords = [];
+{
+    $query = trim($request->input('query'));
+    $priceLimit = null;
+    $brandName = null;
+    $categoryName = null;
+    $keywords = [];
 
-        // Step 1: Extract price from the query
-        preg_match('/under (\d+)/i', $query, $priceMatch);
-        if (!empty($priceMatch)) {
-            $priceLimit = $priceMatch[1];
-            $query = str_replace($priceMatch[0], '', $query); // Remove "under 500" part
-        }
-
-        // Step 2: Extract brand from the query
-        $brands = Brand::pluck('name')->toArray(); // Fetch all brand names
-        foreach ($brands as $brand) {
-            if (stripos($query, $brand) !== false) {
-                $brandName = $brand;
-                $query = str_ireplace($brand, '', $query); // Remove brand name
-                break;
-            }
-        }
-
-        // Step 3: Extract category from the query
-        $categories = Category::pluck('name')->toArray(); // Fetch all category names
-        foreach ($categories as $category) {
-            if (stripos($query, $category) !== false) {
-                $categoryName = $category;
-                $query = str_ireplace($category, '', $query); // Remove category name
-                break;
-            }
-        }
-
-        // Step 4: Remaining keywords
-        $keywords = array_filter(explode(' ', trim($query))); // Remaining keywords after removing brand and category
-
-        // Step 5: Build the query
-        $products = Product::query()
-            ->when($brandName, function ($q) use ($brandName) {
-                $q->whereHas('brand', function ($q) use ($brandName) {
-                    $q->where('name', 'LIKE', "%{$brandName}%");
-                });
-            })
-            ->when($categoryName, function ($q) use ($categoryName) {
-                $q->whereHas('category', function ($q) use ($categoryName) {
-                    $q->where('name', 'LIKE', "%{$categoryName}%");
-                });
-            })
-            ->when($priceLimit, function ($q) use ($priceLimit) {
-                $q->where('discounted_price', '<=', $priceLimit);
-            })
-            ->when(!empty($keywords), function ($q) use ($keywords) {
-                foreach ($keywords as $keyword) {
-                    $q->where('name', 'LIKE', "%{$keyword}%");
-                }
-            })->whereHas('variants', function ($variantQuery) {
-            $variantQuery->where('stock', '>', 0);
-            })->with(['brand'])
-            ->get();
-
-        // Step 6: Return JSON response
-        return response()->json($products);
+    // Step 1: Extract price from the query
+    if (preg_match('/under (\d+)/i', $query, $priceMatch)) {
+        $priceLimit = (int) $priceMatch[1];
+        $query = str_replace($priceMatch[0], '', $query); // Remove extracted price part
     }
+
+    // Fetch active brands and categories for faster lookup
+    $brands = Brand::where('status', 'Active')->pluck('name')->flip(); 
+    $categories = Category::where('status', 'Active')->pluck('name')->flip();
+
+    // Step 2: Extract brand from the query
+    foreach ($brands as $brand => $value) {
+        if (stripos($query, $brand) !== false) {
+            $brandName = $brand;
+            $query = str_ireplace($brand, '', $query);
+            break;
+        }
+    }
+
+    // Step 3: Extract category from the query
+    foreach ($categories as $category => $value) {
+        if (stripos($query, $category) !== false) {
+            $categoryName = $category;
+            $query = str_ireplace($category, '', $query);
+            break;
+        }
+    }
+
+    // Step 4: Extract remaining words as potential keywords
+   
+
+    // Step 5: Build the query
+    $products = Product::query()
+        ->when($brandName, function ($q) use ($brandName) {
+            $q->whereHas('brand', function ($q) use ($brandName) {
+                $q->where('name', 'LIKE', "%{$brandName}%");
+            });
+        })
+        ->when($categoryName, function ($q) use ($categoryName) {
+            $q->whereHas('category', function ($q) use ($categoryName) {
+                $q->where('name', 'LIKE', "%{$categoryName}%");
+            });
+        })
+        ->when($priceLimit, function ($q) use ($priceLimit) {
+            $q->where('discounted_price', '<=', $priceLimit);
+        })
+       
+        ->whereHas('variants', function ($q) {
+            $q->where('stock', '>', 0);
+        })
+        ->with(['brand', 'category'])
+        ->get();
+
+    // Step 6: Return JSON response
+    return response()->json($products);
+}
 
 
 
@@ -260,17 +263,26 @@ class ProductController extends Controller
     {
         // Cache the recent products for 10 minutes
         $products = Cache::remember('recent_products', now()->addMinutes(10), function () {
-            return Product::latest()->take(5)->with([
-                'brand',
-                'category',
-                'images',
-                'variants' => function ($variantQuery) {
-                    $variantQuery->where('stock', '>', 0);
-                },
-            ])->withAvg('reviews as average_rating', 'rating') // Calculate average rating
-            ->withCount('reviews') // Count number of reviews
-            ->where('status', 'active')->get();
+            return Product::latest()
+                ->where('status', 'active')
+                ->whereNull('deleted_at') // Ensure product is not trashed
+                ->whereHas('brand', function ($query) {
+                    $query->whereNull('deleted_at'); // Ensure brand is not trashed
+                })
+                ->take(5)
+                ->with([
+                    'brand',
+                    'category',
+                    'images',
+                    'variants' => function ($variantQuery) {
+                        $variantQuery->where('stock', '>', 0);
+                    },
+                ])
+                ->withAvg('reviews as average_rating', 'rating') // Calculate average rating
+                ->withCount('reviews') // Count number of reviews
+                ->get();
         });
+        
        
     
         return response()->json([
@@ -283,8 +295,13 @@ class ProductController extends Controller
     public function topProducts()
     {
            // Cache the result for 10 minutes (adjust as needed)
-        $products = Cache::remember('top_products', now()->addMinutes(10), function () {
+           $products = Cache::remember('top_products', now()->addMinutes(10), function () {
             return Product::query()
+                ->where('status', 'active')
+                ->whereNull('deleted_at') // Ensure product is not trashed
+                ->whereHas('brand', function ($query) {
+                    $query->whereNull('deleted_at'); // Ensure brand is not trashed
+                })
                 ->withAvg('reviews as average_rating', 'rating') // Calculate average rating
                 ->withCount('reviews') // Count number of reviews
                 ->orderByDesc('average_rating') // Sort by average rating
@@ -296,10 +313,10 @@ class ProductController extends Controller
                     'variants' => function ($variantQuery) {
                         $variantQuery->where('stock', '>', 0);
                     },
-                    ])
-                ->where('status', 'active')
+                ])
                 ->get();
         });
+        
         
     
         return response()->json([

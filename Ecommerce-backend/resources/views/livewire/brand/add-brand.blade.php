@@ -1,4 +1,10 @@
 <div class="container mt-5">
+    @if (session()->has('message'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('message') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
     <div class="card shadow-sm border-0 rounded-4">
         <div class="card-header bg-primary text-white rounded-top-4">
             <h3 class="mb-0">Add New Brand</h3>

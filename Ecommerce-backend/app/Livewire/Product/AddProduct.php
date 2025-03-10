@@ -41,7 +41,19 @@ class AddProduct extends Component
 
     public function addProduct()
     {
-        $this->validate();
+            // Trim all inputs before validation
+        $this->name = trim($this->name);
+        $this->description = trim($this->description);
+
+        $this->validate([
+            'name' => ['required', 'string', 'max:255', 'unique:products,name', 'regex:/^[a-zA-Z0-9\s]+$/'],
+            'description' => ['nullable', 'string', 'max:1000'],
+            'price' => ['required', 'numeric', 'min:0'],
+            'discounted_price' => ['nullable', 'numeric', 'lte:price', 'min:0'],
+            'category_id' => ['required', 'exists:categories,id'],
+            'brand_id' => ['required', 'exists:brands,id'],
+            'status' => ['required'],
+        ]);
 
         $product = Product::create([
             'name' => $this->name,

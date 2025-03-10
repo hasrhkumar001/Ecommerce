@@ -41,14 +41,11 @@ const Register = () => {
 
         if (!password) {
             newErrors.password = 'Password is required';
-        } else if (password.length < 8) {
-            newErrors.password = 'Password must be at least 8 characters';
-        }else if (!/[a-z]/.test(password) || 
-        !/[A-Z]/.test(password) || 
-        !/\d/.test(password) || 
-        !/[@$!%*?&]/.test(password) ) {
-   newErrors.password = 'Password must include uppercase, lowercase, number, and special character';
-}
+        } else if (password.length < 6) {
+            newErrors.password = 'Password must be at least 6 characters';
+        } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/.test(password)) {
+            newErrors.password = 'Password must include uppercase, lowercase, number, and special character';
+        }
 
         if (!address) {
             newErrors.address = 'Address is required';

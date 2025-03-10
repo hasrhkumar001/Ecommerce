@@ -14,7 +14,20 @@ class OrderController extends Controller
 {
     public function index()
     {
-        return response()->json(Order::with(['shippingDetail', 'user','orderDetails'])->get(), 200);
+  
+    $userId = Auth::id(); // Get the authenticated user's ID
+
+    $orders = Order::with(['shippingDetail', 'user','orderDetails'])
+        ->where('user_id', $userId)
+        ->orderBy('created_at', 'desc') // Sorting by latest created date
+        ->get();
+
+    if ($orders->isEmpty()) {
+        return response()->json(['error' => 'No orders found'], 404);
+    }
+
+    return response()->json($orders, 200);
+
     }
 
     public function store(Request $request)
@@ -55,16 +68,21 @@ class OrderController extends Controller
         return response()->json($order, 201);
     }
 
-    public function show($id)
-    {
-        $order = Order::with(['shippingDetail', 'user'])->find($id);
+    public function show()
+{
+    $userId = Auth::id(); // Get the authenticated user's ID
 
-        if (!$order) {
-            return response()->json(['error' => 'Order not found'], 404);
-        }
+    $orders = Order::with(['shippingDetail', 'user'])
+        ->where('user_id', $userId)
+        ->orderBy('created_at', 'desc') // Sorting by latest created date
+        ->get();
 
-        return response()->json($order, 200);
+    if ($orders->isEmpty()) {
+        return response()->json(['error' => 'No orders found'], 404);
     }
+
+    return response()->json($orders, 200);
+}
 
     public function update(Request $request, $id)
     {
@@ -96,5 +114,38 @@ class OrderController extends Controller
 
         $order->delete();
         return response()->json(['message' => 'Order deleted successfully'], 200);
+    }
+    public function cancelOrder($id)
+    {
+        // Get the authenticated user
+        $user = Auth::user();
+
+        // Find the order
+        $order = Order::where('id', $id)->where('user_id', $user->id)->first();
+
+        if (!$order) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Order not found or you do not have permission to cancel this order.',
+            ], 404);
+        }
+
+        // Check if the order is already canceled
+        if ($order->status === 'Cancelled') {
+            return response()->json([
+                'success' => false,
+                'message' => 'This order has already been cancelled.',
+            ], 400);
+        }
+
+        // Update order status to "Cancelled"
+        $order->status = 'Cancelled';
+        $order->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Order cancelled successfully.',
+            'order' => $order
+        ], 200);
     }
 }
